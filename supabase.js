@@ -1,24 +1,50 @@
 /* ===== Supabase 연결 ===== */
 var SUPABASE_URL = 'https://ajorqphnhhnydhewapqa.supabase.co';
 var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqb3JxcGhuaGhueWRoZXdhcHFhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY2OTg4NjksImV4cCI6MjEwMjI3NDg2OX0.ifxj5blUgcgD1pt7oSOhb6_1fyAi8OubIElsOVDDS0c';
-var db = (window.supabase && window.supabase.createClient)
-  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-  : null;
 
-/* 아이디 -> Supabase 내부 이메일 */
+var SUPA_LIB_OK = !!(window.supabase && window.supabase.createClient);
+var db = null;
+try {
+  if(SUPA_LIB_OK) db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+} catch(e){
+  console.error('[온담] Supabase 클라이언트 생성 실패:', e);
+}
+
+if(!SUPA_LIB_OK){
+  console.error('[온담] Supabase 라이브러리를 불러오지 못했습니다. CDN 차단 여부를 확인하세요.');
+}
+
+/* 아이디 -> Supabase 내부 이메일
+   Supabase 는 이메일에 영문/숫자만 허용하므로 아이디도 같은 규칙을 씁니다. */
 function idToEmail(id){ return String(id||'').trim().toLowerCase() + '@ondam.app'; }
+
+/* 아이디에 쓸 수 없는 문자가 있는지 */
+function idIsAscii(id){ return /^[a-z0-9._-]+$/i.test(String(id||'').trim()); }
 
 /* 서버 오류를 사람이 읽을 수 있는 문장으로 */
 function authMsg(err){
   var m = String(err && err.message || err || '');
+  console.error('[온담] 인증 오류 원문:', err);
   if(/Invalid login credentials/i.test(m)) return '아이디 또는 비밀번호가 올바르지 않아요.';
   if(/already registered|already been registered/i.test(m)) return '이미 사용 중인 아이디예요.';
   if(/Email not confirmed/i.test(m)) return '이메일 확인이 켜져 있어요. Supabase 설정에서 Confirm email을 꺼주세요.';
   if(/Password should be/i.test(m)) return '비밀번호는 8자 이상이어야 해요.';
+  if(/invalid format|Unable to validate email/i.test(m)) return '아이디는 영문과 숫자만 사용할 수 있어요.';
   if(/rate limit|too many/i.test(m)) return '요청이 너무 잦아요. 잠시 후 다시 시도해 주세요.';
-  if(/Failed to fetch|NetworkError/i.test(m)) return '서버에 연결하지 못했어요. 인터넷 상태를 확인해 주세요.';
+  if(/Failed to fetch|NetworkError|Load failed/i.test(m)){
+    return '서버에 연결하지 못했어요. (' + m + ')';
+  }
   return m || '알 수 없는 오류가 발생했어요.';
 }
+
+/* 연결 상태 자가 진단 — 콘솔에 결과를 남깁니다 */
+function supaSelfTest(){
+  if(!db){ console.error('[온담] 진단: db 객체가 없습니다.'); return; }
+  fetch(SUPABASE_URL + '/auth/v1/health', { headers: { apikey: SUPABASE_ANON_KEY } })
+    .then(function(r){ console.log('[온담] 진단: 서버 응답 상태', r.status); })
+    .catch(function(e){ console.error('[온담] 진단: 서버 연결 실패 —', e && e.message); });
+}
+if(db) supaSelfTest();
 
 /* ===== 고민광장 서버 연동 ===== */
 function timeAgo(iso){
