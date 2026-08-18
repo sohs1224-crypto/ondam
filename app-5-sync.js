@@ -13,8 +13,25 @@
     var value  = el.getAttribute('data-value');
     if(!db || !state.userId) return;
 
+    /* 프로필 (닉네임·학교·학년·반) */
+    if(action === 'saveProfile'){
+      db.from('profiles').update({
+        nickname: me.nickname,
+        school:   me.school,
+        grade:    parseInt(me.grade, 10) || null,
+        class_no: parseInt(me.classNo, 10) || null
+      }).eq('id', state.userId).then(function(r){
+        if(r.error){
+          console.error('[온담] 프로필 저장 실패:', r.error.message);
+          return;
+        }
+        /* 반이 바뀌었을 수 있으니 학교생활 정보를 다시 불러옵니다 */
+        if(typeof loadSchoolData === 'function') loadSchoolData();
+      });
+    }
+
     /* 시험범위 */
-    if(action === 'examSave'){
+    else if(action === 'examSave'){
       var ex = state.examSel || 0;
       var content = (examData[ex] && examData[ex][value]) || '';
       saveExamRange(ex, value, content);
