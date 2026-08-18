@@ -36,6 +36,15 @@ function authPwField(withHint){
   '</div>';
 }
 
+/* 회원가입은 목록에서 고른 학교여야 통과합니다 */
+authInvalidSignup = function(){
+  var f = state.form;
+  var miss = reqFields().some(function(k){ return !String(f[k]||'').trim(); });
+  var schoolPicked = !!(f.atptCode && f.schulCode);
+  return miss || !schoolPicked || !(f.idChecked && f.idAvailable)
+    || !pwValid(f.pw) || !emailValid(f.email);
+};
+
 
 /* ── 로그인 화면 ── */
 function loginScreen(){
@@ -81,6 +90,14 @@ function signupScreen(){
 
   var emailBad = f.email && !emailValid(f.email);
 
+  /* 학교: 검색 버튼 + 선택 여부 안내 */
+  var schoolPicked = !!(f.atptCode && f.schulCode);
+  var schoolMsg = schoolPicked
+    ? '<div class="id-msg" style="color:#3f8f4f">'+escapeHtml(f.school)+' 선택됨</div>'
+    : (f.schoolSearched
+        ? '<div class="id-msg" style="color:#d9534f">목록에서 학교를 선택해 주세요.</div>'
+        : '<div class="id-msg" style="color:var(--ink-faint)">검색 후 목록에서 학교를 선택해야 해요.</div>');
+
   return '<div class="auth">'+
     '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">'+
       '<button class="iconbtn" data-action="authGo" data-value="login" aria-label="뒤로">'+icon('back',22)+'</button>'+
@@ -89,9 +106,12 @@ function signupScreen(){
 
     '<div class="field" style="position:relative">'+
       '<div class="field__label">학교</div>'+
-      '<input class="field__input'+authErrClass('school')+'" data-field="school" id="af-school" value="'+escapeAttr(f.school)+'" placeholder="학교명을 검색하세요" autocomplete="off">'+
+      '<div style="display:flex;gap:8px">'+
+        '<input class="field__input'+authErrClass('school')+'" data-field="school" id="af-school" value="'+escapeAttr(f.school)+'" placeholder="학교명을 입력하세요" autocomplete="off" style="flex:1">'+
+        '<button class="btn--check" data-action="searchSchool">검색</button>'+
+      '</div>'+
       '<div class="ac-list" id="authSchoolAC"></div>'+
-      authFieldError('school')+
+      authFieldError('school')+schoolMsg+
     '</div>'+
 
     '<div class="field"><div class="field__label">학년 · 반</div>'+
@@ -141,8 +161,7 @@ reqFields = function(){
 };
 
 /* app-4 의 로그인 검사는 학교·학년·반까지 확인합니다.
-   로그인 화면에는 그 칸이 없으므로 검사 직전에 기존 값으로 채워 통과시킵니다.
-   (로그인 성공 후 서버 프로필로 다시 덮어씁니다) */
+   로그인 화면에는 그 칸이 없으므로 검사 직전에 기존 값으로 채워 통과시킵니다. */
 document.addEventListener('click', function(e){
   var el = e.target.closest ? e.target.closest('[data-action]') : null;
   if(!el || el.getAttribute('data-action') !== 'authLogin') return;
