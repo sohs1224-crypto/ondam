@@ -1,5 +1,5 @@
 /* ===== 학교생활 · 친구 서버 연동 =====
-   기존 화면 코드는 전역 배열(examData, perfPosts, homeworkList, friendsList)을
+   기존 화면 코드는 전역 배열(examData, perfPosts, homeworkList, friendsList, recEvents)을
    그대로 읽습니다. 여기서는 서버 값을 그 배열에 채워 넣고,
    클릭 처리가 끝난 뒤 바뀐 내용을 서버로 보냅니다. */
 
@@ -43,7 +43,8 @@ function saveExamRange(examIndex, subject, content){
     school: c.school, grade: c.grade, class_no: c.class_no,
     exam_index: examIndex, subject: subject,
     content: content, author_id: state.userId, updated_at: new Date().toISOString()
-  }, { onConflict: 'school,grade,class_no,exam_index,subject' });
+  }, { onConflict: 'school,grade,class_no,exam_index,subject' })
+  .then(function(r){ if(r.error) console.error('[온담] 시험범위 저장 실패:', r.error.message); });
 }
 
 /* ── 수행평가 ── */
@@ -60,7 +61,7 @@ function loadPerfPosts(){
         return {
           id: d.id, subject: d.subject, title: d.title, body: d.body || '',
           due: d.due || '', photo: d.photo_url || null, nick: d.nickname,
-          mine: d.author_id === state.userId,
+          mine: d.author_id === state.userId, savedToDb: true,
           createdAt: new Date(d.created_at).getTime()
         };
       });
@@ -76,12 +77,15 @@ function savePerfPost(d){
     subject: d.subject, title: d.title, body: d.body || null,
     due: d.due || null, photo_url: d.photo || null,
     nickname: me.nickname, author_id: state.userId
-  }).then(function(r){ if(!r.error) loadPerfPosts(); });
+  }).then(function(r){
+    if(r.error){ console.error('[온담] 수행평가 저장 실패:', r.error.message); return; }
+    loadPerfPosts();
+  });
 }
 
 function deletePerfPost(id){
   if(!db) return;
-  db.from('perf_posts').delete().eq('id', id);
+  db.from('perf_posts').delete().eq('id', id).then(function(){ loadPerfPosts(); });
 }
 
 /* ── 개인 과제 ── */
@@ -94,7 +98,7 @@ function loadHomework(){
     .then(function(r){
       if(r.error) return;
       homeworkList = (r.data||[]).map(function(d){
-        return { id: d.id, text: d.text, due: d.due || '', done: !!d.done };
+        return { id: d.id, text: d.text, due: d.due || '', done: !!d.done, savedToDb: true };
       });
       render();
     });
@@ -104,7 +108,10 @@ function saveHomework(text, due){
   if(!db || !state.userId) return;
   db.from('homework')
     .insert({ user_id: state.userId, text: text, due: due || null })
-    .then(function(r){ if(!r.error) loadHomework(); });
+    .then(function(r){
+      if(r.error){ console.error('[온담] 과제 저장 실패:', r.error.message); return; }
+      loadHomework();
+    });
 }
 
 function toggleHomeworkDb(id, done){
@@ -115,6 +122,59 @@ function toggleHomeworkDb(id, done){
 function deleteHomeworkDb(id){
   if(!db) return;
   db.from('homework').delete().eq('id', id);
+}
+
+/* ── 학급 기록 ── */
+function loadClassEvents(){
+  if(!db || !state.userId) return;
+  var c = myClass();
+  db.from('class_events')
+    .select('*')
+    .eq('school', c.school).eq('grade', c.grade).eq('class_no', c.class_no)
+    .order('date', { ascending:true })
+    .then(function(r){
+      if(r.error) return;
+      recEvents = [];
+      recRequests = [];
+      (r.data||[]).forEach(function(d){
+        var item = { id: d.id, date: d.date, type: d.type, title: d.title, by: d.requested_by || '' };
+        if(d.status === 'pending') recRequests.push(item);
+        else recEvents.push(item);
+      });
+      render();
+    });
+}
+
+function saveClassEvent(ev, isPending){
+  if(!db || !state.userId) return;
+  var c = myClass();
+  db.from('class_events').insert({
+    school: c.school, grade: c.grade, class_no: c.class_no,
+    date: ev.date, type: ev.type, title: ev.title,
+    status: isPending ? 'pending' : 'approved',
+    requested_by: isPending ? me.nickname : null,
+    author_id: state.userId
+  }).then(function(r){
+    if(r.error){ console.error('[온담] 학급기록 저장 실패:', r.error.message); return; }
+    loadClassEvents();
+  });
+}
+
+function updateClassEvent(id, type, title){
+  if(!db) return;
+  db.from('class_events').update({ type: type, title: title }).eq('id', id)
+    .then(function(){ loadClassEvents(); });
+}
+
+function deleteClassEvent(id){
+  if(!db) return;
+  db.from('class_events').delete().eq('id', id).then(function(){ loadClassEvents(); });
+}
+
+function approveClassEvent(id){
+  if(!db) return;
+  db.from('class_events').update({ status:'approved' }).eq('id', id)
+    .then(function(){ loadClassEvents(); });
 }
 
 /* ── 친구 ── */
@@ -164,10 +224,17 @@ function removeFriend(rowId){
     .then(function(){ loadFriends(); });
 }
 
+/* ── 역할(반장·부반장) ── */
+function saveRole(role){
+  if(!db || !state.userId) return;
+  db.from('profiles').update({ role: role }).eq('id', state.userId);
+}
+
 /* ── 로그인 후 한 번에 불러오기 ── */
 function loadSchoolData(){
   loadExamRanges();
   loadPerfPosts();
   loadHomework();
+  loadClassEvents();
   loadFriends();
 }
