@@ -1,0 +1,19 @@
+/* 입력칸 안쪽 오른쪽에 놓이는 아이콘 버튼 (학교 검색 등) */
+.in-field-btn{
+  position:absolute;
+  right:6px;
+  top:50%;
+  transform:translateY(-50%);
+  width:34px;
+  height:34px;
+  display:grid;
+  place-items:center;
+  border:none;
+  background:none;
+  border-radius:50%;
+  color:var(--ink-faint);
+  cursor:pointer;
+  padding:0;
+}
+.in-field-btn:hover{ background:var(--neutral-fill); color:var(--ink-soft); }
+.in-field-btn:active{ transform:translateY(-50%) scale(.94); }
