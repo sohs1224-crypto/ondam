@@ -1,15 +1,16 @@
 /* ===== 나이스 연동 화면 연결 =====
-   - 학교는 검색 버튼을 눌러 목록에서 골라야만 인정
+   - 학교는 검색 아이콘을 눌러 목록에서 골라야만 인정
    - 고른 뒤에는 입력칸이 잠기고, 다시 누르면 비워져 새로 검색 가능
    - 반 선택을 학급정보 목록으로 교체
-   - 학급 기록에 공식 학사일정을 함께 표시 */
+   - 학급 기록에 공식 학사일정을 함께 표시
+   (학교 입력칸 모양은 auth-screens.js 의 signupSchoolField 에 있습니다) */
 
 (function(){
 
   var acCache = {};
-  var refocusSchool = false;   /* 다시 그린 뒤 학교칸에 커서를 둘지 */
+  var refocusSchool = false;
 
-  /* ── 검색 결과 목록 그리기 ── */
+  /* ── 검색 결과 목록 ── */
   authSchoolAC = function(q){
     q = String(q||'').trim();
     if(!q || !acCache[q]) return '';
@@ -32,7 +33,6 @@
     return !!(state.form.atptCode && state.form.schulCode);
   }
 
-  /* 선택을 풀고 입력칸을 비웁니다 */
   function clearSchoolPick(keepText){
     var f = state.form;
     f.atptCode = null;
@@ -40,11 +40,9 @@
     f.schoolKind = '';
     f.classOptions = null;
     f.classKey = null;
-    f.schoolSearched = false;
-    if(!keepText) f.school = '';
+    if(!keepText){ f.school = ''; f.schoolSearched = false; }
   }
 
-  /* ── 반 목록 불러오기 ── */
   function refreshClassOptions(){
     var f = state.form;
     if(!f.atptCode || !f.schulCode || !f.grade) return;
@@ -77,12 +75,11 @@
     var action = el.getAttribute('data-action');
     var value  = el.getAttribute('data-value');
 
-    /* 검색 버튼 */
+    /* 검색 아이콘 */
     if(action === 'searchSchool'){
       var input = document.getElementById('af-school');
       var q = input ? input.value.trim() : String(state.form.school||'').trim();
       state.form.school = q;
-      state.form.schoolSearched = true;
       clearSchoolPick(true);
       state.form.schoolSearched = true;
 
@@ -169,35 +166,23 @@
     if(e.target && e.target.id === 'af-grade') setTimeout(refreshClassOptions, 100);
   });
 
-  /* ── 회원가입 화면 보정 ── */
+  /* ── 회원가입 화면에 반 목록 버튼 붙이기 ── */
   var origSignupScreen = window.signupScreen;
   if(typeof origSignupScreen === 'function'){
     window.signupScreen = function(){
       var html = origSignupScreen();
       var f = state.form;
-
-      /* 학교를 고른 상태면 입력칸을 잠급니다 */
-      if(schoolPicked()){
-        html = html.replace(
-          'id="af-school"',
-          'id="af-school" readonly title="다시 누르면 새로 검색할 수 있어요" style="cursor:pointer;background:var(--neutral-fill)"'
-        );
-      }
-
-      /* 반 목록 버튼 */
-      if(f.classOptions && f.classOptions.length){
-        var chips = f.classOptions.map(function(n){
-          var on = String(f.classNo) === String(n);
-          return '<button type="button" class="subj-chip'+(on?' is-on':'')+'" '+
-            'data-action="pickClassNo" data-value="'+escapeAttr(n)+'">'+escapeHtml(n)+'반</button>';
-        }).join('');
-        html = html.replace(
-          '<div style="display:flex;gap:16px">',
-          '<div class="subj-wrap subj-wrap--scroll" style="margin-top:8px">'+chips+'</div>'+
-          '<div style="display:flex;gap:16px">'
-        );
-      }
-      return html;
+      if(!f.classOptions || !f.classOptions.length) return html;
+      var chips = f.classOptions.map(function(n){
+        var on = String(f.classNo) === String(n);
+        return '<button type="button" class="subj-chip'+(on?' is-on':'')+'" '+
+          'data-action="pickClassNo" data-value="'+escapeAttr(n)+'">'+escapeHtml(n)+'반</button>';
+      }).join('');
+      return html.replace(
+        '<div style="display:flex;gap:16px">',
+        '<div class="subj-wrap subj-wrap--scroll" style="margin-top:8px">'+chips+'</div>'+
+        '<div style="display:flex;gap:16px">'
+      );
     };
   }
 
@@ -209,7 +194,7 @@
       if(refocusSchool){
         refocusSchool = false;
         var input = document.getElementById('af-school');
-        if(input){ input.focus(); }
+        if(input) input.focus();
       }
       return r;
     };
