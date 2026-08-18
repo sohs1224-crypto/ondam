@@ -21,11 +21,7 @@
         grade:    parseInt(me.grade, 10) || null,
         class_no: parseInt(me.classNo, 10) || null
       }).eq('id', state.userId).then(function(r){
-        if(r.error){
-          console.error('[온담] 프로필 저장 실패:', r.error.message);
-          return;
-        }
-        /* 반이 바뀌었을 수 있으니 학교생활 정보를 다시 불러옵니다 */
+        if(r.error){ console.error('[온담] 프로필 저장 실패:', r.error.message); return; }
         if(typeof loadSchoolData === 'function') loadSchoolData();
       });
     }
@@ -62,6 +58,19 @@
       deleteHomeworkDb(value);
     }
 
+    /* 학급 기록 */
+    else if(action === 'recDelete'){
+      deleteClassEvent(value);
+    }
+    else if(action === 'recApprove'){
+      approveClassEvent(value);
+    }
+
+    /* 역할 (반장·부반장) */
+    else if(action === 'recRole'){
+      saveRole(value);
+    }
+
     /* 친구 */
     else if(action === 'acceptFriendReq'){
       var req = friendRequests.filter(function(r){ return r.nick === value; })[0];
@@ -76,6 +85,29 @@
       if(tgt && tgt.userId){
         db.from('warmth_gifts').insert({ sender_id: state.userId, target_id: tgt.userId });
       }
+    }
+  });
+
+  /* 학급 기록 저장은 화면 코드가 배열에 넣은 직후를 잡습니다.
+     반장·부반장이면 recEvents 에, 아니면 recRequests 에 들어갑니다. */
+  document.addEventListener('click', function(e){
+    var el = e.target.closest ? e.target.closest('[data-action]') : null;
+    if(!el || el.getAttribute('data-action') !== 'recSubmit') return;
+    if(!db || !state.userId) return;
+
+    var isLeader = (me.role === '반장' || me.role === '부반장');
+    var list = isLeader ? recEvents : recRequests;
+    var latest = list[list.length - 1];
+    if(!latest) return;
+
+    /* 수정인 경우 */
+    if(isLeader && latest.savedToDb){
+      updateClassEvent(latest.id, latest.type, latest.title);
+      return;
+    }
+    if(!latest.savedToDb){
+      latest.savedToDb = true;
+      saveClassEvent(latest, !isLeader);
     }
   });
 
