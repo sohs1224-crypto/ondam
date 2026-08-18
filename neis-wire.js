@@ -1,11 +1,13 @@
 /* ===== 나이스 연동 화면 연결 =====
    - 학교는 검색 버튼을 눌러 목록에서 골라야만 인정
+   - 고른 뒤에는 입력칸이 잠기고, 다시 누르면 비워져 새로 검색 가능
    - 반 선택을 학급정보 목록으로 교체
    - 학급 기록에 공식 학사일정을 함께 표시 */
 
 (function(){
 
   var acCache = {};
+  var refocusSchool = false;   /* 다시 그린 뒤 학교칸에 커서를 둘지 */
 
   /* ── 검색 결과 목록 그리기 ── */
   authSchoolAC = function(q){
@@ -26,6 +28,22 @@
     if(box) box.innerHTML = authSchoolAC(q);
   }
 
+  function schoolPicked(){
+    return !!(state.form.atptCode && state.form.schulCode);
+  }
+
+  /* 선택을 풀고 입력칸을 비웁니다 */
+  function clearSchoolPick(keepText){
+    var f = state.form;
+    f.atptCode = null;
+    f.schulCode = null;
+    f.schoolKind = '';
+    f.classOptions = null;
+    f.classKey = null;
+    f.schoolSearched = false;
+    if(!keepText) f.school = '';
+  }
+
   /* ── 반 목록 불러오기 ── */
   function refreshClassOptions(){
     var f = state.form;
@@ -40,6 +58,18 @@
     });
   }
 
+  /* ── 잠긴 학교칸을 누르면 비우고 다시 입력 가능하게 ── */
+  document.addEventListener('mousedown', function(e){
+    var t = e.target;
+    if(!t || t.id !== 'af-school') return;
+    if(!schoolPicked()) return;
+    e.preventDefault();
+    clearSchoolPick(false);
+    acCache = {};
+    refocusSchool = true;
+    render();
+  }, true);
+
   /* ── 클릭 처리 ── */
   document.addEventListener('click', function(e){
     var el = e.target.closest ? e.target.closest('[data-action]') : null;
@@ -50,14 +80,11 @@
     /* 검색 버튼 */
     if(action === 'searchSchool'){
       var input = document.getElementById('af-school');
-      var q = input ? input.value.trim() : '';
+      var q = input ? input.value.trim() : String(state.form.school||'').trim();
       state.form.school = q;
       state.form.schoolSearched = true;
-      /* 검색을 다시 하면 이전 선택은 무효 */
-      state.form.atptCode = null;
-      state.form.schulCode = null;
-      state.form.classOptions = null;
-      state.form.classKey = null;
+      clearSchoolPick(true);
+      state.form.schoolSearched = true;
 
       if(q.length < 2){
         acCache[q] = [];
@@ -86,6 +113,7 @@
         state.form.classOptions = null;
         if(!state.form.touched) state.form.touched = {};
         state.form.touched.school = true;
+        acCache = {};
         refreshClassOptions();
       } else if(state.profileForm){
         state.profileForm.school = parts[0];
@@ -94,7 +122,6 @@
         state.profileForm.schoolKind = parts[3] || '';
       }
       render();
-      drawAC('');
     }
 
     /* 반 선택 */
@@ -137,39 +164,54 @@
     }
   });
 
-  /* ── 학교명을 직접 고치면 선택을 무효로 ── */
+  /* ── 학년을 바꾸면 반 목록 갱신 ── */
   document.addEventListener('input', function(e){
-    var t = e.target;
-    if(!t) return;
-    if(t.id === 'af-school'){
-      if(state.form.atptCode || state.form.schulCode){
-        state.form.atptCode = null;
-        state.form.schulCode = null;
-        state.form.classOptions = null;
-        state.form.classKey = null;
-        render();
-      }
-    }
-    if(t.id === 'af-grade') setTimeout(refreshClassOptions, 100);
+    if(e.target && e.target.id === 'af-grade') setTimeout(refreshClassOptions, 100);
   });
 
-  /* ── 회원가입 화면의 반 입력 아래에 목록 버튼 붙이기 ── */
+  /* ── 회원가입 화면 보정 ── */
   var origSignupScreen = window.signupScreen;
   if(typeof origSignupScreen === 'function'){
     window.signupScreen = function(){
       var html = origSignupScreen();
       var f = state.form;
-      if(!f.classOptions || !f.classOptions.length) return html;
-      var chips = f.classOptions.map(function(n){
-        var on = String(f.classNo) === String(n);
-        return '<button type="button" class="subj-chip'+(on?' is-on':'')+'" '+
-          'data-action="pickClassNo" data-value="'+escapeAttr(n)+'">'+escapeHtml(n)+'반</button>';
-      }).join('');
-      return html.replace(
-        '<div style="display:flex;gap:16px">',
-        '<div class="subj-wrap subj-wrap--scroll" style="margin-top:8px">'+chips+'</div>'+
-        '<div style="display:flex;gap:16px">'
-      );
+
+      /* 학교를 고른 상태면 입력칸을 잠급니다 */
+      if(schoolPicked()){
+        html = html.replace(
+          'id="af-school"',
+          'id="af-school" readonly title="다시 누르면 새로 검색할 수 있어요" style="cursor:pointer;background:var(--neutral-fill)"'
+        );
+      }
+
+      /* 반 목록 버튼 */
+      if(f.classOptions && f.classOptions.length){
+        var chips = f.classOptions.map(function(n){
+          var on = String(f.classNo) === String(n);
+          return '<button type="button" class="subj-chip'+(on?' is-on':'')+'" '+
+            'data-action="pickClassNo" data-value="'+escapeAttr(n)+'">'+escapeHtml(n)+'반</button>';
+        }).join('');
+        html = html.replace(
+          '<div style="display:flex;gap:16px">',
+          '<div class="subj-wrap subj-wrap--scroll" style="margin-top:8px">'+chips+'</div>'+
+          '<div style="display:flex;gap:16px">'
+        );
+      }
+      return html;
+    };
+  }
+
+  /* ── 다시 그린 뒤 학교칸에 커서 두기 ── */
+  var origRender = window.render;
+  if(typeof origRender === 'function'){
+    window.render = function(){
+      var r = origRender.apply(this, arguments);
+      if(refocusSchool){
+        refocusSchool = false;
+        var input = document.getElementById('af-school');
+        if(input){ input.focus(); }
+      }
+      return r;
     };
   }
 
