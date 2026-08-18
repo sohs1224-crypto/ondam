@@ -40,8 +40,8 @@ function authPwField(withHint){
 authInvalidSignup = function(){
   var f = state.form;
   var miss = reqFields().some(function(k){ return !String(f[k]||'').trim(); });
-  var schoolPicked = !!(f.atptCode && f.schulCode);
-  return miss || !schoolPicked || !(f.idChecked && f.idAvailable)
+  var picked = !!(f.atptCode && f.schulCode);
+  return miss || !picked || !(f.idChecked && f.idAvailable)
     || !pwValid(f.pw) || !emailValid(f.email);
 };
 
@@ -76,6 +76,42 @@ function loginScreen(){
 }
 
 
+/* ── 회원가입: 학교 입력칸 ──
+   검색 아이콘을 칸 안 오른쪽에 넣고,
+   학교를 고른 뒤에는 칸을 잠급니다. */
+function signupSchoolField(){
+  var f = state.form;
+  var picked = !!(f.atptCode && f.schulCode);
+
+  var lockStyle = picked
+    ? 'padding-right:44px;cursor:pointer;background:var(--neutral-fill)'
+    : 'padding-right:44px';
+  var lockAttr = picked ? ' readonly title="다시 누르면 새로 검색할 수 있어요"' : '';
+
+  var iconBtn = '<button type="button" class="in-field-btn" data-action="searchSchool" aria-label="학교 검색">'+
+      icon('search', 18)+
+    '</button>';
+
+  var msg = picked
+    ? '<div class="id-msg" style="color:#3f8f4f">'+escapeHtml(f.school)+' 선택됨</div>'
+    : (f.schoolSearched
+        ? '<div class="id-msg" style="color:#d9534f">목록에서 학교를 선택해 주세요.</div>'
+        : '<div class="id-msg" style="color:var(--ink-faint)">학교명을 입력하고 검색 버튼을 눌러주세요.</div>');
+
+  return '<div class="field" style="position:relative">'+
+    '<div class="field__label">학교</div>'+
+    '<div style="position:relative">'+
+      '<input class="field__input'+authErrClass('school')+'" data-field="school" id="af-school" '+
+        'value="'+escapeAttr(f.school)+'" placeholder="학교명을 입력하세요" autocomplete="off" '+
+        'style="'+lockStyle+'"'+lockAttr+'>'+
+      iconBtn+
+    '</div>'+
+    '<div class="ac-list" id="authSchoolAC"></div>'+
+    authFieldError('school')+msg+
+  '</div>';
+}
+
+
 /* ── 회원가입 화면 ── */
 function signupScreen(){
   var f = state.form;
@@ -90,29 +126,13 @@ function signupScreen(){
 
   var emailBad = f.email && !emailValid(f.email);
 
-  /* 학교: 검색 버튼 + 선택 여부 안내 */
-  var schoolPicked = !!(f.atptCode && f.schulCode);
-  var schoolMsg = schoolPicked
-    ? '<div class="id-msg" style="color:#3f8f4f">'+escapeHtml(f.school)+' 선택됨</div>'
-    : (f.schoolSearched
-        ? '<div class="id-msg" style="color:#d9534f">목록에서 학교를 선택해 주세요.</div>'
-        : '<div class="id-msg" style="color:var(--ink-faint)">검색 후 목록에서 학교를 선택해야 해요.</div>');
-
   return '<div class="auth">'+
     '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">'+
       '<button class="iconbtn" data-action="authGo" data-value="login" aria-label="뒤로">'+icon('back',22)+'</button>'+
       '<div style="font-size:20px;font-weight:800">회원가입</div>'+
     '</div>'+
 
-    '<div class="field" style="position:relative">'+
-      '<div class="field__label">학교</div>'+
-      '<div style="display:flex;gap:8px">'+
-        '<input class="field__input'+authErrClass('school')+'" data-field="school" id="af-school" value="'+escapeAttr(f.school)+'" placeholder="학교명을 입력하세요" autocomplete="off" style="flex:1">'+
-        '<button class="btn--check" data-action="searchSchool">검색</button>'+
-      '</div>'+
-      '<div class="ac-list" id="authSchoolAC"></div>'+
-      authFieldError('school')+schoolMsg+
-    '</div>'+
+    signupSchoolField()+
 
     '<div class="field"><div class="field__label">학년 · 반</div>'+
       '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">'+
