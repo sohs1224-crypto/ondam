@@ -1,44 +1,32 @@
 /* ===== 나이스 연동 화면 연결 =====
-   - 학교 검색을 실제 나이스 데이터로 교체
+   - 학교는 검색 버튼을 눌러 목록에서 골라야만 인정
    - 반 선택을 학급정보 목록으로 교체
    - 학급 기록에 공식 학사일정을 함께 표시 */
 
 (function(){
 
-  /* ── 학교 자동완성을 나이스 검색으로 교체 ── */
   var acCache = {};
-  var acPending = null;
 
+  /* ── 검색 결과 목록 그리기 ── */
   authSchoolAC = function(q){
     q = String(q||'').trim();
-    if(q.length < 2) return '';
-
-    if(acCache[q]){
-      var rows = acCache[q];
-      if(rows.length === 1 && rows[0].name === q) return '';
-      if(rows.length === 0) return '<div class="ac-item ac-empty">검색 결과가 없어요</div>';
-      return rows.slice(0,8).map(function(r){
-        var label = r.name + (r.area ? ' · ' + r.area : '');
-        return '<button type="button" class="ac-item" data-action="pickNeisSchool" '+
-          'data-value="'+escapeAttr([r.name, r.atpt, r.code, r.kind||''].join('|'))+'">'+
-          escapeHtml(label)+'</button>';
-      }).join('');
-    }
-
-    clearTimeout(acPending);
-    acPending = setTimeout(function(){
-      neisSearchSchools(q).then(function(rows){
-        acCache[q] = rows;
-        var box = document.getElementById('authSchoolAC');
-        if(box) box.innerHTML = authSchoolAC(q);
-      });
-    }, 300);
-
-    return '<div class="ac-item ac-empty">찾는 중…</div>';
+    if(!q || !acCache[q]) return '';
+    var rows = acCache[q];
+    if(rows.length === 0) return '<div class="ac-item ac-empty">검색 결과가 없어요</div>';
+    return rows.slice(0,10).map(function(r){
+      var label = r.name + (r.area ? ' · ' + r.area : '');
+      return '<button type="button" class="ac-item" data-action="pickNeisSchool" '+
+        'data-value="'+escapeAttr([r.name, r.atpt, r.code, r.kind||''].join('|'))+'">'+
+        escapeHtml(label)+'</button>';
+    }).join('');
   };
 
+  function drawAC(q){
+    var box = document.getElementById('authSchoolAC');
+    if(box) box.innerHTML = authSchoolAC(q);
+  }
 
-  /* ── 반 목록 불러오기 (가입 화면) ── */
+  /* ── 반 목록 불러오기 ── */
   function refreshClassOptions(){
     var f = state.form;
     if(!f.atptCode || !f.schulCode || !f.grade) return;
@@ -46,13 +34,11 @@
     if(f.classKey === key) return;
     f.classKey = key;
     f.classOptions = null;
-
     neisClassesOf(f.atptCode, f.schulCode, f.grade).then(function(names){
       f.classOptions = names;
       render();
     });
   }
-
 
   /* ── 클릭 처리 ── */
   document.addEventListener('click', function(e){
@@ -60,6 +46,33 @@
     if(!el) return;
     var action = el.getAttribute('data-action');
     var value  = el.getAttribute('data-value');
+
+    /* 검색 버튼 */
+    if(action === 'searchSchool'){
+      var input = document.getElementById('af-school');
+      var q = input ? input.value.trim() : '';
+      state.form.school = q;
+      state.form.schoolSearched = true;
+      /* 검색을 다시 하면 이전 선택은 무효 */
+      state.form.atptCode = null;
+      state.form.schulCode = null;
+      state.form.classOptions = null;
+      state.form.classKey = null;
+
+      if(q.length < 2){
+        acCache[q] = [];
+        render(); drawAC(q);
+        return;
+      }
+      var box = document.getElementById('authSchoolAC');
+      if(box) box.innerHTML = '<div class="ac-item ac-empty">찾는 중…</div>';
+      neisSearchSchools(q).then(function(rows){
+        acCache[q] = rows;
+        render();
+        drawAC(q);
+      });
+      return;
+    }
 
     /* 학교 선택 */
     if(action === 'pickNeisSchool'){
@@ -81,6 +94,7 @@
         state.profileForm.schoolKind = parts[3] || '';
       }
       render();
+      drawAC('');
     }
 
     /* 반 선택 */
@@ -123,29 +137,34 @@
     }
   });
 
-
-  /* ── 학년을 바꾸면 반 목록을 다시 불러옵니다 ── */
+  /* ── 학교명을 직접 고치면 선택을 무효로 ── */
   document.addEventListener('input', function(e){
     var t = e.target;
-    if(t && t.id === 'af-grade') setTimeout(refreshClassOptions, 100);
+    if(!t) return;
+    if(t.id === 'af-school'){
+      if(state.form.atptCode || state.form.schulCode){
+        state.form.atptCode = null;
+        state.form.schulCode = null;
+        state.form.classOptions = null;
+        state.form.classKey = null;
+        render();
+      }
+    }
+    if(t.id === 'af-grade') setTimeout(refreshClassOptions, 100);
   });
 
-
-  /* ── 회원가입 화면의 반 입력을 목록 선택으로 교체 ── */
+  /* ── 회원가입 화면의 반 입력 아래에 목록 버튼 붙이기 ── */
   var origSignupScreen = window.signupScreen;
   if(typeof origSignupScreen === 'function'){
     window.signupScreen = function(){
       var html = origSignupScreen();
       var f = state.form;
       if(!f.classOptions || !f.classOptions.length) return html;
-
       var chips = f.classOptions.map(function(n){
         var on = String(f.classNo) === String(n);
         return '<button type="button" class="subj-chip'+(on?' is-on':'')+'" '+
           'data-action="pickClassNo" data-value="'+escapeAttr(n)+'">'+escapeHtml(n)+'반</button>';
       }).join('');
-
-      /* 반 입력칸 아래에 목록을 덧붙입니다 */
       return html.replace(
         '<div style="display:flex;gap:16px">',
         '<div class="subj-wrap subj-wrap--scroll" style="margin-top:8px">'+chips+'</div>'+
@@ -154,7 +173,6 @@
     };
   }
 
-
   /* ── 학급 기록에 공식 학사일정 표시 ── */
   var origClassRecScreen = window.classRecScreen;
   if(typeof origClassRecScreen === 'function'){
@@ -162,10 +180,8 @@
       var html = origClassRecScreen();
       var sel = state.recSelDate;
       if(!sel) return html;
-
       var events = scheduleFor(sel);
       if(!events.length) return html;
-
       var box = '<div class="section" style="padding-top:0">'+
         '<div class="section__title" style="font-size:14px">학교 공식 일정</div>'+
         events.map(function(ev){
@@ -177,7 +193,6 @@
             '</span></div>';
         }).join('')+
       '</div>';
-
       return html + box;
     };
   }
