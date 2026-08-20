@@ -35,9 +35,12 @@
   z-index:50;
 }
 
-/* 스크롤 영역이 탭바에 가리지 않도록 아래 여백 확보 */
+/* 스크롤 영역이 탭바에 가리지 않도록 아래 여백 확보.
+   탭바가 화면 아래 16px + 높이 64px 를 차지하므로,
+   스크롤을 끝까지 내렸을 때 마지막 내용이 탭바 위로 넉넉히 떨어지도록
+   그 위에 40px 의 여유 공간을 더 둡니다. */
 .screen{
-  padding-bottom:calc(var(--tabbar-h) + 24px + env(safe-area-inset-bottom, 0px));
+  padding-bottom:calc(64px + 16px + 40px + env(safe-area-inset-bottom, 0px));
 }
 
 /* 글쓰기 버튼(FAB)도 탭바 위에 함께 고정 */
@@ -45,7 +48,7 @@
   position:fixed;
   left:auto;
   right:calc(50% - var(--app-max)/2 + 16px);
-  bottom:calc(var(--tabbar-h) + 16px + env(safe-area-inset-bottom, 0px));
+  bottom:calc(64px + 16px + 16px + env(safe-area-inset-bottom, 0px));
   z-index:49;
 }
 
@@ -53,7 +56,7 @@
 .friend-fab{
   position:fixed;
   right:calc(50% - var(--app-max)/2 + 16px);
-  bottom:calc(var(--tabbar-h) + 20px + env(safe-area-inset-bottom, 0px));
+  bottom:calc(64px + 16px + 20px + env(safe-area-inset-bottom, 0px));
   z-index:49;
 }
 
