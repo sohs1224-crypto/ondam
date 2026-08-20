@@ -19,12 +19,40 @@
 .in-field-btn:active{ transform:translateY(-50%) scale(.94); }
 
 
+/* ===== 배경을 흰색 계열로 =====
+   기존 베이지(#f6f3ea, #e6e2d4, #eef1e3 등)를 모두 흰색·중립 회색으로 교체합니다.
+   테두리도 베이지라 함께 중립 회색으로 바꿔야 색감이 남지 않습니다. */
+:root{
+  --bg:#ffffff;
+  --surface:#ffffff;
+  --surface-alt:#f4f4f4;   /* 칩·급식칸 등 요소 배경 — 완전 흰색이면 구분이 사라져 아주 옅은 회색 */
+  --line:#ececec;
+  --line-strong:#dcdcdc;
+}
+
+body{ background:#f0f0f0; }        /* 프레임 바깥 여백 (데스크톱에서 앱 경계 구분용) */
+.app-root{ background:#f0f0f0; }
+.app-frame{ background:#ffffff; }
+.splash{ background:#ffffff; }
+
+/* 하단 탭바 */
+.tabbar{ background:rgba(255,255,255,.96); }
+
+/* 화면 배경을 직접 지정한 곳들 */
+.screen{ background:#ffffff; }
+.topbar{ background:#ffffff; }
+
+@media(max-width:479px){
+  body{ background:#ffffff; }
+  .app-root{ background:#ffffff; }
+}
+
+
 /* ===== 하단 탭바를 화면 아래에 고정 =====
    기존 탭바는 .app-frame 기준 absolute 라, 모바일에서 내용이 길어지면
    프레임이 늘어나며 탭바도 함께 밀려 내려갔습니다.
    여기서는 뷰포트 하단에 고정(fixed)하고, 겹치는 요소들의 위치를 맞춥니다. */
 
-/* 화면이 넓을 때(데스크톱 미리보기)는 프레임 폭 안에서 가운데 정렬 */
 .tabbar{
   position:fixed;
   left:50%;
@@ -35,15 +63,11 @@
   z-index:50;
 }
 
-/* 스크롤 영역이 탭바에 가리지 않도록 아래 여백 확보.
-   탭바가 화면 아래 16px + 높이 64px 를 차지하므로,
-   스크롤을 끝까지 내렸을 때 마지막 내용이 탭바 위로 넉넉히 떨어지도록
-   그 위에 40px 의 여유 공간을 더 둡니다. */
+/* 스크롤을 끝까지 내렸을 때 마지막 내용이 탭바 위로 넉넉히 떨어지도록 */
 .screen{
   padding-bottom:calc(64px + 16px + 40px + env(safe-area-inset-bottom, 0px));
 }
 
-/* 글쓰기 버튼(FAB)도 탭바 위에 함께 고정 */
 .fab{
   position:fixed;
   left:auto;
@@ -52,7 +76,6 @@
   z-index:49;
 }
 
-/* 친구 채팅 버튼도 동일하게 */
 .friend-fab{
   position:fixed;
   right:calc(50% - var(--app-max)/2 + 16px);
@@ -60,13 +83,11 @@
   z-index:49;
 }
 
-/* 화면이 좁을 때(실제 휴대폰)는 오른쪽 여백을 단순하게 */
 @media(max-width:479px){
   .fab{ right:16px; }
   .friend-fab{ right:16px; }
 }
 
-/* 채팅 입력창은 프레임 하단에 고정 */
 .chat-dock{
   position:fixed;
   left:50%;
