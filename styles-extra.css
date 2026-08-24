@@ -19,8 +19,29 @@
 .in-field-btn:active{ transform:translateY(-50%) scale(.94); }
 
 
+/* ===== 시작 화면 =====
+   로고 하나만 가운데 두고, 배경은 베이지를 유지합니다. */
+.splash.splash--logo{
+  background:#faf7ec;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:0;
+  padding:0;
+}
+.splash.splash--logo svg{
+  width:min(46vw, 190px);
+  height:auto;
+  animation:splashIn .6s ease-out both;
+}
+@keyframes splashIn{
+  from{ opacity:0; transform:translateY(10px) scale(.96); }
+  to{ opacity:1; transform:none; }
+}
+
+
 /* ===== 배경을 흰색 계열로 =====
-   기존 베이지(#f6f3ea, #e6e2d4, #eef1e3 등)를 모두 흰색·중립 회색으로 교체합니다.
+   기존 베이지(#f6f3ea, #e6e2d4, #eef1e3 등)를 흰색·중립 회색으로 교체합니다.
    테두리도 베이지라 함께 중립 회색으로 바꿔야 색감이 남지 않습니다. */
 :root{
   --bg:#ffffff;
@@ -33,12 +54,8 @@
 body{ background:#f0f0f0; }        /* 프레임 바깥 여백 (데스크톱에서 앱 경계 구분용) */
 .app-root{ background:#f0f0f0; }
 .app-frame{ background:#ffffff; }
-.splash{ background:#ffffff; }
 
-/* 하단 탭바 */
 .tabbar{ background:rgba(255,255,255,.96); }
-
-/* 화면 배경을 직접 지정한 곳들 */
 .screen{ background:#ffffff; }
 .topbar{ background:#ffffff; }
 
@@ -50,9 +67,7 @@ body{ background:#f0f0f0; }        /* 프레임 바깥 여백 (데스크톱에�
 
 /* ===== 하단 탭바를 화면 아래에 고정 =====
    기존 탭바는 .app-frame 기준 absolute 라, 모바일에서 내용이 길어지면
-   프레임이 늘어나며 탭바도 함께 밀려 내려갔습니다.
-   여기서는 뷰포트 하단에 고정(fixed)하고, 겹치는 요소들의 위치를 맞춥니다. */
-
+   프레임이 늘어나며 탭바도 함께 밀려 내려갔습니다. */
 .tabbar{
   position:fixed;
   left:50%;
