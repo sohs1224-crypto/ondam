@@ -12,7 +12,7 @@ function drawSplash(){
     (state.splashFade?' class="splash" data-out="1"':' class="splash"')+'>'+
     '<img src="splash.png" alt="" '+
     'onerror="this.src=LOGO;this.style.width=\'140px\';this.style.height=\'140px\'" '+
-    'style="max-width:75%;max-height:80vh;width:auto;height:auto">'+
+    'style="max-width:90%;max-height:90vh;width:auto;height:auto">'+
     '</div>';
 }
 
