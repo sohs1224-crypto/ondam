@@ -51,23 +51,19 @@ authInvalidSignup = function(){
 function welcomeScreen(){
   return '<div style="display:flex;flex-direction:column;min-height:100vh;padding:0 24px;background:#fff">'+
 
-    /* 상단 여백 — 로고를 화면 중앙보다 살짝 위에 */
     '<div style="flex:1.2"></div>'+
 
-    /* 로고 + 제목 + 슬로건 — 간격 최소화 */
     '<div style="text-align:center">'+
-      '<img src="'+ONDAM_LOGO+'" alt="온담 로고" style="width:130px;height:auto;margin:0 auto;display:block" />'+
-      '<div style="font-size:26px;font-weight:800;color:#1a1a1a;margin-top:0;letter-spacing:-0.5px">온담</div>'+
+      '<img src="'+ONDAM_LOGO+'" alt="온담 로고" style="width:130px;height:auto;margin:0 auto -18px;display:block" />'+
+      '<div style="font-size:26px;font-weight:800;color:#1a1a1a;margin:0;letter-spacing:-0.5px">온담</div>'+
       '<p style="font-size:14px;font-weight:400;color:#888;line-height:1.6;margin:6px 0 0 0">'+
         '마음이 머무르는 곳<br>'+
         '우리의 이야기에 따뜻한 온기를 더해봐요.'+
       '</p>'+
     '</div>'+
 
-    /* 하단 여백 */
     '<div style="flex:1.8"></div>'+
 
-    /* 시작하기 버튼 + 로그인 링크 */
     '<div style="padding-bottom:calc(32px + env(safe-area-inset-bottom, 0px))">'+
       '<button data-action="authGo" data-value="signup" '+
         'style="width:100%;padding:17px 0;font-size:17px;font-weight:700;'+
@@ -96,8 +92,8 @@ function loginScreen(){
     '</div>'+
 
     '<div style="text-align:center;margin:16px 0 24px">'+
-      '<img src="'+ONDAM_LOGO+'" alt="온담 로고" style="width:80px;height:auto;margin:0 auto;display:block" />'+
-      '<p style="font-size:14px;color:#888;margin:2px 0 0 0">다시 만나 반가워요</p>'+
+      '<img src="'+ONDAM_LOGO+'" alt="온담 로고" style="width:80px;height:auto;margin:0 auto -10px;display:block" />'+
+      '<p style="font-size:14px;color:#888;margin:0">다시 만나 반가워요</p>'+
     '</div>'+
 
     '<div class="field"><div class="field__label">아이디</div>'+
