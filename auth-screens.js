@@ -1,5 +1,7 @@
 /* ===== 시작 · 로그인 · 회원가입 화면 ===== */
 
+var ONDAM_LOGO = 'logo.png';
+
 /* ── 공통 조각 ── */
 function authErrClass(k){
   var f = state.form;
@@ -49,12 +51,10 @@ authInvalidSignup = function(){
 function welcomeScreen(){
   return '<div class="auth" style="display:flex;flex-direction:column;min-height:calc(100vh - 40px);padding:0 24px;justify-content:space-between">'+
 
-    /* 상단 여백 */
     '<div style="flex:0.8"></div>'+
 
-    /* 로고 + 제목 + 슬로건 */
     '<div style="text-align:center">'+
-      '<img src="'+LOGO+'" alt="온담 로고" style="width:88px;height:88px;margin:0 auto 20px;display:block" />'+
+      '<img src="'+ONDAM_LOGO+'" alt="온담 로고" style="width:120px;height:auto;margin:0 auto 20px;display:block" />'+
       '<div style="font-size:34px;font-weight:800;color:var(--ink);margin-bottom:16px">온담</div>'+
       '<p style="font-size:15px;font-weight:400;color:var(--ink-soft);line-height:1.7;margin:0">'+
         '마음이 머무르는 곳<br>'+
@@ -62,10 +62,8 @@ function welcomeScreen(){
       '</p>'+
     '</div>'+
 
-    /* 하단 여백 */
     '<div style="flex:1"></div>'+
 
-    /* 시작하기 버튼 + 로그인 링크 */
     '<div style="padding-bottom:40px">'+
       '<button class="btn btn--primary" data-action="authGo" data-value="signup" '+
         'style="width:100%;padding:16px;font-size:16px;font-weight:700;'+
@@ -94,7 +92,7 @@ function loginScreen(){
     '</div>'+
 
     '<div style="text-align:center;margin:16px 0 24px">'+
-      '<img src="'+LOGO+'" alt="온담 로고" style="width:56px;height:56px;margin:0 auto 10px;display:block" />'+
+      '<img src="'+ONDAM_LOGO+'" alt="온담 로고" style="width:80px;height:auto;margin:0 auto 10px;display:block" />'+
       '<p style="font-size:14px;color:var(--ink-soft);margin:0">다시 만나 반가워요</p>'+
     '</div>'+
 
@@ -213,7 +211,6 @@ authScreen = function(){
   if(state.authView==='findid') return findIdScreen();
   if(state.authView==='signup') return signupScreen();
   if(state.authView==='loginForm') return loginScreen();
-  /* 기본: 시작 화면 */
   return welcomeScreen();
 };
 
@@ -224,7 +221,6 @@ reqFields = function(){
   return state.authView==='signup' ? AUTH_FIELDS.concat(['email']) : LOGIN_FIELDS;
 };
 
-/* 로그인 화면에는 학교·학년·반 칸이 없으므로 검사 직전에 채워 통과시킵니다. */
 document.addEventListener('click', function(e){
   var el = e.target.closest ? e.target.closest('[data-action]') : null;
   if(!el || el.getAttribute('data-action') !== 'authLogin') return;
