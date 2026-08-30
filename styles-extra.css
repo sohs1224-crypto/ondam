@@ -19,6 +19,13 @@
 .in-field-btn:active{ transform:translateY(-50%) scale(.94); }
 
 
+/* ===== 페이드 줌 전환 효과 ===== */
+@keyframes fadeZoomIn{
+  from{ opacity:0; transform:scale(0.95); }
+  to{ opacity:1; transform:scale(1); }
+}
+
+
 /* ===== 배경을 흰색 계열로 (앱 본화면) ===== */
 :root{
   --bg:#ffffff;
@@ -42,15 +49,13 @@ body{ background:#f0f0f0; }
 }
 
 
-/* ===== 시작 화면(스플래시) =====
-   스플래시가 화면에 있을 때만 앱 배경도 베이지가 되도록 :has() 로 덮어씁니다. */
+/* ===== 시작 화면(스플래시) ===== */
 body:has(.splash),
 .app-root:has(.splash),
 .app-frame:has(.splash){
   background:#faf7ec !important;
 }
 
-/* 스플래시 자체 — 프레임 안을 가득 채우고 로고를 가운데 */
 .splash,
 .splash--img,
 .splash--logo{
@@ -65,7 +70,6 @@ body:has(.splash),
   gap:0;
 }
 
-/* 로고 이미지 크기 */
 .splash-img,
 .splash img{
   width:min(60vw, 260px) !important;
