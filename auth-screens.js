@@ -46,39 +46,6 @@ authInvalidSignup = function(){
 
 
 /* ══════════════════════════════════════
-   페이드 줌 전환 효과
-   ══════════════════════════════════════ */
-var welcomeTransitioning = false;
-
-function welcomeTransition(targetView){
-  if(welcomeTransitioning) return;
-  welcomeTransitioning = true;
-  var el = document.getElementById('welcomeWrap');
-  if(el){
-    el.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
-    el.style.opacity = '0';
-    el.style.transform = 'scale(1.08)';
-  }
-  setTimeout(function(){
-    welcomeTransitioning = false;
-    state.authView = targetView;
-    render();
-  }, 300);
-}
-
-/* authGo 클릭을 가로채서 시작 화면에서 전환 효과 적용 */
-document.addEventListener('click', function(e){
-  var el = e.target.closest ? e.target.closest('[data-action]') : null;
-  if(!el || el.getAttribute('data-action') !== 'authGo') return;
-  var val = el.getAttribute('data-value');
-  if((val === 'signup' || val === 'loginForm') && state.authView !== 'signup' && state.authView !== 'loginForm' && state.authView !== 'findid' && state.authView !== 'findpw'){
-    e.stopPropagation();
-    welcomeTransition(val);
-  }
-}, true);
-
-
-/* ══════════════════════════════════════
    시작 화면 (스플래시 후 첫 화면)
    ══════════════════════════════════════ */
 function welcomeScreen(){
@@ -98,19 +65,44 @@ function welcomeScreen(){
     '<div style="flex:1.8"></div>'+
 
     '<div style="padding-bottom:calc(32px + env(safe-area-inset-bottom, 0px))">'+
-      '<button data-action="authGo" data-value="signup" '+
+      '<button data-action="welcomeGo" data-value="signup" '+
         'style="width:100%;padding:17px 0;font-size:17px;font-weight:700;'+
         'border-radius:12px;border:none;cursor:pointer;'+
         'background:#8fae7e;color:#fff;font-family:inherit">시작하기</button>'+
       '<div style="text-align:center;margin-top:18px;font-size:13px;font-weight:400">'+
         '<span style="color:#aaa">이미 계정이 있나요? </span>'+
-        '<span data-action="authGo" data-value="loginForm" '+
+        '<span data-action="welcomeGo" data-value="loginForm" '+
           'style="color:#8fae7e;font-weight:600;cursor:pointer;text-decoration:underline">로그인</span>'+
       '</div>'+
     '</div>'+
 
   '</div>';
 }
+
+
+/* ══════════════════════════════════════
+   페이드 줌 전환 효과
+   시작 화면 전용 액션 "welcomeGo" 를 처리합니다.
+   기존 "authGo" 핸들러와 충돌하지 않습니다.
+   ══════════════════════════════════════ */
+document.addEventListener('click', function(e){
+  var el = e.target.closest ? e.target.closest('[data-action="welcomeGo"]') : null;
+  if(!el) return;
+  e.preventDefault();
+  e.stopImmediatePropagation();
+
+  var targetView = el.getAttribute('data-value');
+  var wrap = document.getElementById('welcomeWrap');
+  if(wrap){
+    wrap.style.transition = 'opacity 0.35s ease, transform 0.35s ease';
+    wrap.style.opacity = '0';
+    wrap.style.transform = 'scale(1.06)';
+  }
+  setTimeout(function(){
+    state.authView = targetView;
+    render();
+  }, 350);
+});
 
 
 /* ══════════════════════════════════════
