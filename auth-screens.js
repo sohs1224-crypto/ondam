@@ -1,6 +1,4 @@
-/* ===== 로그인 · 회원가입 화면 =====
-   두 화면을 각각 독립된 함수로 나눠 둡니다.
-   app-3-detail.js 의 authScreen 을 이 파일이 대체합니다. */
+/* ===== 시작 · 로그인 · 회원가입 화면 ===== */
 
 /* ── 공통 조각 ── */
 function authErrClass(k){
@@ -36,7 +34,6 @@ function authPwField(withHint){
   '</div>';
 }
 
-/* 회원가입은 목록에서 고른 학교여야 통과합니다 */
 authInvalidSignup = function(){
   var f = state.form;
   var miss = reqFields().some(function(k){ return !String(f[k]||'').trim(); });
@@ -46,14 +43,59 @@ authInvalidSignup = function(){
 };
 
 
-/* ── 로그인 화면 ── */
+/* ══════════════════════════════════════
+   시작 화면 (스플래시 후 첫 화면)
+   ══════════════════════════════════════ */
+function welcomeScreen(){
+  return '<div class="auth" style="display:flex;flex-direction:column;min-height:calc(100vh - 40px);padding:0 24px;justify-content:space-between">'+
+
+    /* 상단 여백 */
+    '<div style="flex:0.8"></div>'+
+
+    /* 로고 + 제목 + 슬로건 */
+    '<div style="text-align:center">'+
+      '<img src="'+LOGO+'" alt="온담 로고" style="width:88px;height:88px;margin:0 auto 20px;display:block" />'+
+      '<div style="font-size:34px;font-weight:800;color:var(--ink);margin-bottom:16px">온담</div>'+
+      '<p style="font-size:15px;font-weight:400;color:var(--ink-soft);line-height:1.7;margin:0">'+
+        '마음이 머무르는 곳<br>'+
+        '우리의 이야기에 따뜻한 온기를 더해봐요.'+
+      '</p>'+
+    '</div>'+
+
+    /* 하단 여백 */
+    '<div style="flex:1"></div>'+
+
+    /* 시작하기 버튼 + 로그인 링크 */
+    '<div style="padding-bottom:40px">'+
+      '<button class="btn btn--primary" data-action="authGo" data-value="signup" '+
+        'style="width:100%;padding:16px;font-size:16px;font-weight:700;'+
+        'border-radius:14px;border:none;cursor:pointer;'+
+        'background:#8fae7e;color:#fff">시작하기</button>'+
+      '<div style="text-align:center;margin-top:16px;font-size:13px">'+
+        '<span style="color:#999">이미 계정이 있나요? </span>'+
+        '<span data-action="authGo" data-value="loginForm" '+
+          'style="color:#8fae7e;font-weight:700;cursor:pointer">로그인</span>'+
+      '</div>'+
+    '</div>'+
+
+  '</div>';
+}
+
+
+/* ══════════════════════════════════════
+   로그인 화면 (아이디 + 비밀번호)
+   ══════════════════════════════════════ */
 function loginScreen(){
   var f = state.form;
   return '<div class="auth">'+
-    '<div style="text-align:center;margin-bottom:8px">'+
-      '<img class="logo-img" src="'+LOGO+'" alt="온담 로고" style="width:66px;height:66px;margin:0 auto 14px;display:block" />'+
-      '<div class="brand-name" style="font-size:30px">온담</div>'+
-      '<p class="brand-slogan">다시 만나 반가워요</p>'+
+    '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">'+
+      '<button class="iconbtn" data-action="authGo" data-value="login" aria-label="뒤로">'+icon('back',22)+'</button>'+
+      '<div style="font-size:20px;font-weight:800">로그인</div>'+
+    '</div>'+
+
+    '<div style="text-align:center;margin:16px 0 24px">'+
+      '<img src="'+LOGO+'" alt="온담 로고" style="width:56px;height:56px;margin:0 auto 10px;display:block" />'+
+      '<p style="font-size:14px;color:var(--ink-soft);margin:0">다시 만나 반가워요</p>'+
     '</div>'+
 
     '<div class="field"><div class="field__label">아이디</div>'+
@@ -65,20 +107,16 @@ function loginScreen(){
     authSubmitBtn('authLogin', '로그인')+
 
     '<div class="auth__links">'+
-      '<span data-action="authGo" data-value="signup">회원가입</span><span class="dot"></span>'+
       '<span data-action="authGo" data-value="findid">아이디 찾기</span><span class="dot"></span>'+
       '<span data-action="authGo" data-value="findpw">비밀번호 찾기</span>'+
     '</div>'+
-    '<div class="divider">또는</div>'+
-    '<button class="btn btn--outline" data-action="go" data-value="app">먼저 둘러보기</button>'+
-    '<p class="placeholder-note" style="text-align:center">로그인 없이 앱을 미리 볼 수 있어요 (작성·온기 기능은 로그인 후 이용)</p>'+
   '</div>';
 }
 
 
-/* ── 회원가입: 학교 입력칸 ──
-   검색 아이콘을 칸 안 오른쪽에 넣고,
-   학교를 고른 뒤에는 칸을 잠급니다. */
+/* ══════════════════════════════════════
+   회원가입: 학교 입력칸
+   ══════════════════════════════════════ */
 function signupSchoolField(){
   var f = state.form;
   var picked = !!(f.atptCode && f.schulCode);
@@ -112,7 +150,9 @@ function signupSchoolField(){
 }
 
 
-/* ── 회원가입 화면 ── */
+/* ══════════════════════════════════════
+   회원가입 화면
+   ══════════════════════════════════════ */
 function signupScreen(){
   var f = state.form;
 
@@ -165,12 +205,16 @@ function signupScreen(){
 }
 
 
-/* ── 어느 화면을 보여줄지 ── */
+/* ══════════════════════════════════════
+   화면 라우팅
+   ══════════════════════════════════════ */
 authScreen = function(){
   if(state.authView==='findpw') return findPwScreen();
   if(state.authView==='findid') return findIdScreen();
   if(state.authView==='signup') return signupScreen();
-  return loginScreen();
+  if(state.authView==='loginForm') return loginScreen();
+  /* 기본: 시작 화면 */
+  return welcomeScreen();
 };
 
 
@@ -180,8 +224,7 @@ reqFields = function(){
   return state.authView==='signup' ? AUTH_FIELDS.concat(['email']) : LOGIN_FIELDS;
 };
 
-/* app-4 의 로그인 검사는 학교·학년·반까지 확인합니다.
-   로그인 화면에는 그 칸이 없으므로 검사 직전에 기존 값으로 채워 통과시킵니다. */
+/* 로그인 화면에는 학교·학년·반 칸이 없으므로 검사 직전에 채워 통과시킵니다. */
 document.addEventListener('click', function(e){
   var el = e.target.closest ? e.target.closest('[data-action]') : null;
   if(!el || el.getAttribute('data-action') !== 'authLogin') return;
