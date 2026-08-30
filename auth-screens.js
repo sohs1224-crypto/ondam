@@ -54,7 +54,7 @@ function welcomeScreen(){
     '<div style="flex:0.8"></div>'+
 
     '<div style="text-align:center">'+
-      '<img src="'+ONDAM_LOGO+'" alt="온담 로고" style="width:120px;height:auto;margin:0 auto 6px;display:block" />'+
+      '<img src="'+ONDAM_LOGO+'" alt="온담 로고" style="width:120px;height:auto;margin:0 auto -6px;display:block" />'+
       '<div style="font-size:34px;font-weight:800;color:var(--ink);margin-bottom:16px">온담</div>'+
       '<p style="font-size:15px;font-weight:400;color:var(--ink-soft);line-height:1.7;margin:0">'+
         '마음이 머무르는 곳<br>'+
@@ -92,7 +92,7 @@ function loginScreen(){
     '</div>'+
 
     '<div style="text-align:center;margin:16px 0 24px">'+
-      '<img src="'+ONDAM_LOGO+'" alt="온담 로고" style="width:80px;height:auto;margin:0 auto 4px;display:block" />'+
+      '<img src="'+ONDAM_LOGO+'" alt="온담 로고" style="width:80px;height:auto;margin:0 auto -4px;display:block" />'+
       '<p style="font-size:14px;color:var(--ink-soft);margin:0">다시 만나 반가워요</p>'+
     '</div>'+
 
