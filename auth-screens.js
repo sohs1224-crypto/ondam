@@ -2,6 +2,10 @@
 
 var ONDAM_LOGO = 'logo.png';
 
+/* 애니메이션 style 태그 — 화면 HTML에 직접 삽입해서 캐시 문제를 우회 */
+var FADE_STYLE = '<style>@keyframes afzi{0%{opacity:0;transform:scale(.94) translateY(14px)}100%{opacity:1;transform:none}}</style>';
+var FADE_ATTR = 'style="animation:afzi .35s ease both"';
+
 /* ── 공통 조각 ── */
 function authErrClass(k){
   var f = state.form;
@@ -46,7 +50,7 @@ authInvalidSignup = function(){
 
 
 /* ══════════════════════════════════════
-   시작 화면 (스플래시 후 첫 화면)
+   시작 화면
    ══════════════════════════════════════ */
 function welcomeScreen(){
   return '<div style="display:flex;flex-direction:column;min-height:100vh;padding:0 24px;background:#fff">'+
@@ -85,7 +89,7 @@ function welcomeScreen(){
    ══════════════════════════════════════ */
 function loginScreen(){
   var f = state.form;
-  return '<div class="auth auth--fadeIn">'+
+  return FADE_STYLE+'<div class="auth" '+FADE_ATTR+'>'+
     '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">'+
       '<button class="iconbtn" data-action="authGo" data-value="login" aria-label="뒤로">'+icon('back',22)+'</button>'+
       '<div style="font-size:20px;font-weight:800">로그인</div>'+
@@ -164,7 +168,7 @@ function signupScreen(){
 
   var emailBad = f.email && !emailValid(f.email);
 
-  return '<div class="auth auth--fadeIn">'+
+  return FADE_STYLE+'<div class="auth" '+FADE_ATTR+'>'+
     '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">'+
       '<button class="iconbtn" data-action="authGo" data-value="login" aria-label="뒤로">'+icon('back',22)+'</button>'+
       '<div style="font-size:20px;font-weight:800">회원가입</div>'+
