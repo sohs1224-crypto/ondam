@@ -46,10 +46,43 @@ authInvalidSignup = function(){
 
 
 /* ══════════════════════════════════════
+   페이드 줌 전환 효과
+   ══════════════════════════════════════ */
+var welcomeTransitioning = false;
+
+function welcomeTransition(targetView){
+  if(welcomeTransitioning) return;
+  welcomeTransitioning = true;
+  var el = document.getElementById('welcomeWrap');
+  if(el){
+    el.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+    el.style.opacity = '0';
+    el.style.transform = 'scale(1.08)';
+  }
+  setTimeout(function(){
+    welcomeTransitioning = false;
+    state.authView = targetView;
+    render();
+  }, 300);
+}
+
+/* authGo 클릭을 가로채서 시작 화면에서 전환 효과 적용 */
+document.addEventListener('click', function(e){
+  var el = e.target.closest ? e.target.closest('[data-action]') : null;
+  if(!el || el.getAttribute('data-action') !== 'authGo') return;
+  var val = el.getAttribute('data-value');
+  if((val === 'signup' || val === 'loginForm') && state.authView !== 'signup' && state.authView !== 'loginForm' && state.authView !== 'findid' && state.authView !== 'findpw'){
+    e.stopPropagation();
+    welcomeTransition(val);
+  }
+}, true);
+
+
+/* ══════════════════════════════════════
    시작 화면 (스플래시 후 첫 화면)
    ══════════════════════════════════════ */
 function welcomeScreen(){
-  return '<div style="display:flex;flex-direction:column;min-height:100vh;padding:0 24px;background:#fff">'+
+  return '<div id="welcomeWrap" style="display:flex;flex-direction:column;min-height:100vh;padding:0 24px;background:#fff">'+
 
     '<div style="flex:1.2"></div>'+
 
@@ -58,7 +91,7 @@ function welcomeScreen(){
       '<div style="font-size:26px;font-weight:800;color:#1a1a1a;margin:0;letter-spacing:-0.5px">온담</div>'+
       '<p style="font-size:14px;font-weight:400;color:#888;line-height:1.6;margin:6px 0 0 0">'+
         '마음이 머무르는 곳<br>'+
-        '우리의 이야기에 따뜻한 온기를 더해봐요.'+
+        '이야기에 따뜻한 온기를 더해봐요.'+
       '</p>'+
     '</div>'+
 
@@ -85,7 +118,7 @@ function welcomeScreen(){
    ══════════════════════════════════════ */
 function loginScreen(){
   var f = state.form;
-  return '<div class="auth">'+
+  return '<div class="auth" style="animation:fadeZoomIn 0.3s ease both">'+
     '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">'+
       '<button class="iconbtn" data-action="authGo" data-value="login" aria-label="뒤로">'+icon('back',22)+'</button>'+
       '<div style="font-size:20px;font-weight:800">로그인</div>'+
@@ -164,7 +197,7 @@ function signupScreen(){
 
   var emailBad = f.email && !emailValid(f.email);
 
-  return '<div class="auth">'+
+  return '<div class="auth" style="animation:fadeZoomIn 0.3s ease both">'+
     '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">'+
       '<button class="iconbtn" data-action="authGo" data-value="login" aria-label="뒤로">'+icon('back',22)+'</button>'+
       '<div style="font-size:20px;font-weight:800">회원가입</div>'+
