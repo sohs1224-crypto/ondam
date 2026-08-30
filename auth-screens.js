@@ -46,27 +46,10 @@ authInvalidSignup = function(){
 
 
 /* ══════════════════════════════════════
-   페이드 줌 전환 — 버튼의 onclick 에서 직접 호출
-   ══════════════════════════════════════ */
-function welcomeGoTo(targetView){
-  var wrap = document.getElementById('welcomeWrap');
-  if(wrap){
-    wrap.style.transition = 'opacity 0.35s ease, transform 0.35s ease';
-    wrap.style.opacity = '0';
-    wrap.style.transform = 'scale(1.06)';
-  }
-  setTimeout(function(){
-    state.authView = targetView;
-    render();
-  }, 360);
-}
-
-
-/* ══════════════════════════════════════
    시작 화면 (스플래시 후 첫 화면)
    ══════════════════════════════════════ */
 function welcomeScreen(){
-  return '<div id="welcomeWrap" style="display:flex;flex-direction:column;min-height:100vh;padding:0 24px;background:#fff">'+
+  return '<div style="display:flex;flex-direction:column;min-height:100vh;padding:0 24px;background:#fff">'+
 
     '<div style="flex:1.2"></div>'+
 
@@ -82,13 +65,13 @@ function welcomeScreen(){
     '<div style="flex:1.8"></div>'+
 
     '<div style="padding-bottom:calc(32px + env(safe-area-inset-bottom, 0px))">'+
-      '<button onclick="welcomeGoTo(\'signup\')" '+
+      '<button data-action="authGo" data-value="signup" '+
         'style="width:100%;padding:17px 0;font-size:17px;font-weight:700;'+
         'border-radius:12px;border:none;cursor:pointer;'+
         'background:#8fae7e;color:#fff;font-family:inherit">시작하기</button>'+
       '<div style="text-align:center;margin-top:18px;font-size:13px;font-weight:400">'+
         '<span style="color:#aaa">이미 계정이 있나요? </span>'+
-        '<span onclick="welcomeGoTo(\'loginForm\')" '+
+        '<span data-action="authGo" data-value="loginForm" '+
           'style="color:#8fae7e;font-weight:600;cursor:pointer;text-decoration:underline">로그인</span>'+
       '</div>'+
     '</div>'+
@@ -98,11 +81,11 @@ function welcomeScreen(){
 
 
 /* ══════════════════════════════════════
-   로그인 화면 (아이디 + 비밀번호)
+   로그인 화면
    ══════════════════════════════════════ */
 function loginScreen(){
   var f = state.form;
-  return '<div class="auth" style="animation:fadeZoomIn 0.3s ease both">'+
+  return '<div class="auth auth--fadeIn">'+
     '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">'+
       '<button class="iconbtn" data-action="authGo" data-value="login" aria-label="뒤로">'+icon('back',22)+'</button>'+
       '<div style="font-size:20px;font-weight:800">로그인</div>'+
@@ -181,7 +164,7 @@ function signupScreen(){
 
   var emailBad = f.email && !emailValid(f.email);
 
-  return '<div class="auth" style="animation:fadeZoomIn 0.3s ease both">'+
+  return '<div class="auth auth--fadeIn">'+
     '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">'+
       '<button class="iconbtn" data-action="authGo" data-value="login" aria-label="뒤로">'+icon('back',22)+'</button>'+
       '<div style="font-size:20px;font-weight:800">회원가입</div>'+
@@ -232,7 +215,6 @@ authScreen = function(){
 };
 
 
-/* ── 로그인 시 필수 항목은 아이디·비밀번호만 ── */
 var LOGIN_FIELDS = ['id','pw'];
 reqFields = function(){
   return state.authView==='signup' ? AUTH_FIELDS.concat(['email']) : LOGIN_FIELDS;
