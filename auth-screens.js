@@ -46,6 +46,23 @@ authInvalidSignup = function(){
 
 
 /* ══════════════════════════════════════
+   페이드 줌 전환 — 버튼의 onclick 에서 직접 호출
+   ══════════════════════════════════════ */
+function welcomeGoTo(targetView){
+  var wrap = document.getElementById('welcomeWrap');
+  if(wrap){
+    wrap.style.transition = 'opacity 0.35s ease, transform 0.35s ease';
+    wrap.style.opacity = '0';
+    wrap.style.transform = 'scale(1.06)';
+  }
+  setTimeout(function(){
+    state.authView = targetView;
+    render();
+  }, 360);
+}
+
+
+/* ══════════════════════════════════════
    시작 화면 (스플래시 후 첫 화면)
    ══════════════════════════════════════ */
 function welcomeScreen(){
@@ -65,44 +82,19 @@ function welcomeScreen(){
     '<div style="flex:1.8"></div>'+
 
     '<div style="padding-bottom:calc(32px + env(safe-area-inset-bottom, 0px))">'+
-      '<button data-action="welcomeGo" data-value="signup" '+
+      '<button onclick="welcomeGoTo(\'signup\')" '+
         'style="width:100%;padding:17px 0;font-size:17px;font-weight:700;'+
         'border-radius:12px;border:none;cursor:pointer;'+
         'background:#8fae7e;color:#fff;font-family:inherit">시작하기</button>'+
       '<div style="text-align:center;margin-top:18px;font-size:13px;font-weight:400">'+
         '<span style="color:#aaa">이미 계정이 있나요? </span>'+
-        '<span data-action="welcomeGo" data-value="loginForm" '+
+        '<span onclick="welcomeGoTo(\'loginForm\')" '+
           'style="color:#8fae7e;font-weight:600;cursor:pointer;text-decoration:underline">로그인</span>'+
       '</div>'+
     '</div>'+
 
   '</div>';
 }
-
-
-/* ══════════════════════════════════════
-   페이드 줌 전환 효과
-   시작 화면 전용 액션 "welcomeGo" 를 처리합니다.
-   기존 "authGo" 핸들러와 충돌하지 않습니다.
-   ══════════════════════════════════════ */
-document.addEventListener('click', function(e){
-  var el = e.target.closest ? e.target.closest('[data-action="welcomeGo"]') : null;
-  if(!el) return;
-  e.preventDefault();
-  e.stopImmediatePropagation();
-
-  var targetView = el.getAttribute('data-value');
-  var wrap = document.getElementById('welcomeWrap');
-  if(wrap){
-    wrap.style.transition = 'opacity 0.35s ease, transform 0.35s ease';
-    wrap.style.opacity = '0';
-    wrap.style.transform = 'scale(1.06)';
-  }
-  setTimeout(function(){
-    state.authView = targetView;
-    render();
-  }, 350);
-});
 
 
 /* ══════════════════════════════════════
