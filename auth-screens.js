@@ -1,4 +1,4 @@
-/* ===== 시작 · 로그인 · 회원가입 화면 ===== */
+/* ===== 시작 · 로그인 · 회원가입 · 비밀번호 찾기 화면 ===== */
 
 var ONDAM_LOGO = 'logo.png';
 
@@ -62,23 +62,49 @@ function welcomeScreen(){
 function loginScreen(){
   var f = state.form;
   return '<div class="auth">'+
-    '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">'+
-      '<button class="iconbtn" data-action="authGo" data-value="login" aria-label="뒤로">'+icon('back',22)+'</button>'+
-      '<div style="font-size:20px;font-weight:800">로그인</div>'+
-    '</div>'+
-    '<div style="text-align:center;margin:16px 0 24px">'+
-      '<img src="'+ONDAM_LOGO+'" alt="온담" style="width:80px;height:auto;margin:0 auto -10px;display:block" />'+
-      '<p style="font-size:14px;color:#888;margin:0">다시 만나 반가워요</p>'+
-    '</div>'+
-    '<div class="field"><div class="field__label">아이디</div>'+
-      '<input class="field__input" data-field="id" id="af-id" value="'+escapeAttr(f.id)+'" placeholder="아이디를 입력하세요" autocomplete="off"></div>'+
-    '<div class="field"><div class="field__label">비밀번호</div>'+
-      '<input class="field__input" data-field="pw" id="af-pw" type="password" value="'+escapeAttr(f.pw)+'" placeholder="비밀번호를 입력하세요" autocomplete="off"></div>'+
+    '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><button class="iconbtn" data-action="authGo" data-value="login" aria-label="뒤로">'+icon('back',22)+'</button><div style="font-size:20px;font-weight:800">로그인</div></div>'+
+    '<div style="text-align:center;margin:16px 0 24px"><img src="'+ONDAM_LOGO+'" alt="온담" style="width:80px;height:auto;margin:0 auto -10px;display:block" /><p style="font-size:14px;color:#888;margin:0">다시 만나 반가워요</p></div>'+
+    '<div class="field"><div class="field__label">아이디</div><input class="field__input" data-field="id" id="af-id" value="'+escapeAttr(f.id)+'" placeholder="아이디를 입력하세요" autocomplete="off"></div>'+
+    '<div class="field"><div class="field__label">비밀번호</div><input class="field__input" data-field="pw" id="af-pw" type="password" value="'+escapeAttr(f.pw)+'" placeholder="비밀번호를 입력하세요" autocomplete="off"></div>'+
     '<div style="margin-top:20px"><button class="btn btn--primary" id="loginBtn" data-action="authLogin"'+(f.busy?' disabled':'')+'>'+(f.busy?'잠시만요…':'로그인')+'</button></div>'+
     (f.authError?'<div style="color:#d9534f;text-align:center;margin-top:12px;font-size:14px">아이디/비밀번호가 틀렸습니다.</div>':'')+
     '<div class="auth__links"><span data-action="authGo" data-value="findid">아이디 찾기</span><span class="dot"></span><span data-action="authGo" data-value="findpw">비밀번호 찾기</span></div>'+
   '</div>';
 }
+
+/* ══════════════════════════════════════
+   비밀번호 찾기 (재설정)
+   아이디 + 가입 시 등록한 이메일 + 새 비밀번호 입력
+   ══════════════════════════════════════ */
+findPwScreen = function(){
+  var f = state.form;
+  var resetOk = f.resetOk || false;
+
+  if(resetOk){
+    return '<div class="auth">'+
+      '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><button class="iconbtn" data-action="authGo" data-value="loginForm" aria-label="뒤로">'+icon('back',22)+'</button><div style="font-size:20px;font-weight:800">비밀번호 찾기</div></div>'+
+      '<div style="text-align:center;margin:40px 0">'+
+        '<div style="font-size:48px;margin-bottom:16px">✅</div>'+
+        '<p style="font-size:16px;font-weight:700;color:#1a1a1a;margin:0 0 8px">비밀번호가 변경되었습니다</p>'+
+        '<p style="font-size:14px;color:#888;margin:0">새 비밀번호로 로그인해 주세요.</p>'+
+      '</div>'+
+      '<div style="margin-top:20px"><button class="btn btn--primary" data-action="authGo" data-value="loginForm">로그인하러 가기</button></div>'+
+    '</div>';
+  }
+
+  var newPw = f.newPw || '';
+  var newPwBad = newPw && !pwValid(newPw);
+
+  return '<div class="auth">'+
+    '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><button class="iconbtn" data-action="authGo" data-value="loginForm" aria-label="뒤로">'+icon('back',22)+'</button><div style="font-size:20px;font-weight:800">비밀번호 찾기</div></div>'+
+    '<p style="font-size:13px;color:#888;margin:0 0 16px">가입 시 등록한 아이디와 이메일을 입력하면<br>새 비밀번호를 설정할 수 있어요.</p>'+
+    '<div class="field"><div class="field__label">아이디</div><input class="field__input" data-field="id" id="af-id" value="'+escapeAttr(f.id)+'" placeholder="아이디를 입력하세요" autocomplete="off"></div>'+
+    '<div class="field"><div class="field__label">가입 시 등록한 이메일</div><input class="field__input" data-field="email" id="af-email" value="'+escapeAttr(f.email||'')+'" placeholder="이메일을 입력하세요" autocomplete="off"></div>'+
+    '<div class="field"><div class="field__label">새 비밀번호</div><input class="field__input" data-field="newPw" id="af-newPw" type="password" value="'+escapeAttr(newPw)+'" placeholder="새 비밀번호를 입력하세요" autocomplete="new-password"><div class="pw-hint" style="color:'+(newPwBad?'#d9534f':'var(--ink-faint)')+'">8자 이상, 영문과 숫자를 포함하여 입력해주세요.</div></div>'+
+    '<div style="margin-top:20px"><button class="btn btn--primary" id="resetPwBtn" data-action="resetPw"'+(f.busy?' disabled':'')+'>'+(f.busy?'잠시만요…':'비밀번호 변경')+'</button></div>'+
+    (f.authError?'<div style="color:#d9534f;text-align:center;margin-top:12px;font-size:14px">'+escapeHtml(f.authError)+'</div>':'')+
+  '</div>';
+};
 
 function signupSchoolField(){
   var f = state.form;
@@ -121,27 +147,53 @@ authScreen = function(){
 var LOGIN_FIELDS = ['id','pw'];
 reqFields = function(){ return state.authView==='signup' ? AUTH_FIELDS.concat(['email']) : LOGIN_FIELDS; };
 
-/* 로그인 화면 진입 시 폼 초기화 */
+/* 클릭 처리 */
 document.addEventListener('click', function(e){
   var el = e.target.closest ? e.target.closest('[data-action]') : null;
   if(!el) return;
   var action = el.getAttribute('data-action');
   var value = el.getAttribute('data-value');
 
-  /* 로그인 화면으로 갈 때 아이디·비밀번호 초기화 */
   if(action === 'authGo' && value === 'loginForm'){
-    state.form.id = '';
-    state.form.pw = '';
-    state.form.authError = '';
+    state.form.id = ''; state.form.pw = ''; state.form.authError = ''; state.form.resetOk = false;
   }
-
-  /* 로그인 버튼 누를 때 학교·학년·반 기본값 채우기 */
+  if(action === 'authGo' && value === 'findpw'){
+    state.form.id = ''; state.form.email = ''; state.form.newPw = '';
+    state.form.authError = ''; state.form.resetOk = false;
+  }
   if(action === 'authLogin'){
     state.form.school = state.form.school || me.school || '온담고등학교';
     state.form.grade = state.form.grade || me.grade || 1;
     state.form.classNo = state.form.classNo || me.classNo || 1;
   }
+
+  /* 비밀번호 재설정 */
+  if(action === 'resetPw'){
+    e.stopImmediatePropagation();
+    var f = state.form;
+    var lid = String(f.id||'').trim();
+    var em = String(f.email||'').trim();
+    var np = String(f.newPw||'').trim();
+    if(!lid || !em || !np){ f.authError = '모든 항목을 입력해 주세요.'; render(); return; }
+    if(!pwValid(np)){ f.authError = '비밀번호는 8자 이상, 영문과 숫자를 포함해야 합니다.'; render(); return; }
+    f.busy = true; f.authError = ''; render();
+    db.rpc('reset_password', { login_id_in: lid, email_in: em, new_pw: np })
+      .then(function(r){
+        f.busy = false;
+        if(r.error){ f.authError = '처리 중 오류가 발생했습니다.'; render(); return; }
+        if(r.data === true){ f.resetOk = true; f.authError = ''; }
+        else { f.authError = '아이디 또는 이메일이 일치하지 않습니다.'; }
+        render();
+      });
+  }
 }, true);
+
+/* newPw 필드 입력 감지 */
+document.addEventListener('input', function(e){
+  if(e.target && e.target.id === 'af-newPw'){
+    state.form.newPw = e.target.value;
+  }
+});
 
 /* render 후 로그인 버튼 강제 활성화 */
 (function(){
@@ -152,6 +204,10 @@ document.addEventListener('click', function(e){
     if(state.stage==='login' && state.authView==='loginForm'){
       var btn = document.getElementById('loginBtn');
       if(btn && !state.form.busy) btn.disabled = false;
+    }
+    if(state.stage==='login' && state.authView==='findpw'){
+      var btn2 = document.getElementById('resetPwBtn');
+      if(btn2 && !state.form.busy) btn2.disabled = false;
     }
     return r;
   };
