@@ -2,10 +2,6 @@
 
 var ONDAM_LOGO = 'logo.png';
 
-/* 애니메이션 style 태그 — 화면 HTML에 직접 삽입해서 캐시 문제를 우회 */
-var FADE_STYLE = '<style>@keyframes afzi{0%{opacity:0;transform:scale(.94) translateY(14px)}100%{opacity:1;transform:none}}</style>';
-var FADE_ATTR = 'style="animation:afzi .35s ease both"';
-
 /* ── 공통 조각 ── */
 function authErrClass(k){
   var f = state.form;
@@ -85,11 +81,13 @@ function welcomeScreen(){
 
 
 /* ══════════════════════════════════════
-   로그인 화면
+   로그인 화면 — 버튼 항시 활성화, 오류 메시지 표시
    ══════════════════════════════════════ */
 function loginScreen(){
   var f = state.form;
-  return FADE_STYLE+'<div class="auth" '+FADE_ATTR+'>'+
+  var btnDisabled = f.busy ? ' disabled' : '';
+
+  return '<div class="auth">'+
     '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">'+
       '<button class="iconbtn" data-action="authGo" data-value="login" aria-label="뒤로">'+icon('back',22)+'</button>'+
       '<div style="font-size:20px;font-weight:800">로그인</div>'+
@@ -101,12 +99,21 @@ function loginScreen(){
     '</div>'+
 
     '<div class="field"><div class="field__label">아이디</div>'+
-      '<input class="field__input'+authErrClass('id')+'" data-field="id" id="af-id" value="'+escapeAttr(f.id)+'" placeholder="아이디를 입력하세요" autocomplete="off">'+
-      authFieldError('id')+
+      '<input class="field__input" data-field="id" id="af-id" value="'+escapeAttr(f.id)+'" placeholder="아이디를 입력하세요" autocomplete="off">'+
     '</div>'+
 
-    authPwField(false)+
-    authSubmitBtn('authLogin', '로그인')+
+    '<div class="field"><div class="field__label">비밀번호</div>'+
+      '<input class="field__input" data-field="pw" id="af-pw" type="password" value="'+escapeAttr(f.pw)+'" placeholder="비밀번호를 입력하세요">'+
+    '</div>'+
+
+    '<div style="margin-top:20px">'+
+      '<button class="btn btn--primary" id="authSubmit" data-action="authLogin"'+btnDisabled+'>'+
+        (f.busy ? '잠시만요…' : '로그인')+
+      '</button>'+
+    '</div>'+
+    (f.authError
+      ? '<div style="color:#d9534f;text-align:center;margin-top:12px;font-size:14px;font-weight:600">'+escapeHtml(f.authError)+'</div>'
+      : '')+
 
     '<div class="auth__links">'+
       '<span data-action="authGo" data-value="findid">아이디 찾기</span><span class="dot"></span>'+
@@ -168,7 +175,7 @@ function signupScreen(){
 
   var emailBad = f.email && !emailValid(f.email);
 
-  return FADE_STYLE+'<div class="auth" '+FADE_ATTR+'>'+
+  return '<div class="auth">'+
     '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">'+
       '<button class="iconbtn" data-action="authGo" data-value="login" aria-label="뒤로">'+icon('back',22)+'</button>'+
       '<div style="font-size:20px;font-weight:800">회원가입</div>'+
