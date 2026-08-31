@@ -74,7 +74,7 @@ function loginScreen(){
       '<input class="field__input" data-field="id" id="af-id" value="'+escapeAttr(f.id)+'" placeholder="아이디를 입력하세요" autocomplete="off"></div>'+
     '<div class="field"><div class="field__label">비밀번호</div>'+
       '<input class="field__input" data-field="pw" id="af-pw" type="password" value="'+escapeAttr(f.pw)+'" placeholder="비밀번호를 입력하세요"></div>'+
-    '<div style="margin-top:20px"><button class="btn btn--primary" id="authSubmit" data-action="authLogin"'+(f.busy?' disabled':'')+'>'+(f.busy?'잠시만요…':'로그인')+'</button></div>'+
+    '<div style="margin-top:20px"><button class="btn btn--primary" id="loginBtn" data-action="authLogin"'+(f.busy?' disabled':'')+'>'+(f.busy?'잠시만요…':'로그인')+'</button></div>'+
     (f.authError?'<div style="color:#d9534f;text-align:center;margin-top:12px;font-size:14px">아이디/비밀번호가 틀렸습니다.</div>':'')+
     '<div class="auth__links"><span data-action="authGo" data-value="findid">아이디 찾기</span><span class="dot"></span><span data-action="authGo" data-value="findpw">비밀번호 찾기</span></div>'+
   '</div>';
@@ -128,3 +128,19 @@ document.addEventListener('click', function(e){
   state.form.grade = state.form.grade || me.grade || 1;
   state.form.classNo = state.form.classNo || me.classNo || 1;
 }, true);
+
+/* app-4가 #authSubmit을 찾아 비활성화하는 것을 방지:
+   로그인 화면에서는 #loginBtn을 쓰므로 #authSubmit이 없어 영향 없음.
+   추가로 render 후 #loginBtn이 disabled되지 않도록 보호 */
+(function(){
+  var origRender2 = window.render;
+  if(typeof origRender2 !== 'function') return;
+  window.render = function(){
+    var r = origRender2.apply(this, arguments);
+    if(state.stage==='login' && state.authView==='loginForm'){
+      var btn = document.getElementById('loginBtn');
+      if(btn && !state.form.busy) btn.disabled = false;
+    }
+    return r;
+  };
+})();
