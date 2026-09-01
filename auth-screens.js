@@ -22,7 +22,8 @@ authInvalidSignup = function(){
   var f = state.form;
   var miss = ['school','grade','classNo','id','pw','email'].some(function(k){ return !String(f[k]||'').trim(); });
   var picked = !!(f.atptCode && f.schulCode);
-  return miss || !picked || !(f.idChecked && f.idAvailable) || !pwValid(f.pw) || !emailValid(f.email);
+  var idBad = f.id && !/^[a-zA-Z0-9]+$/.test(f.id);
+  return miss || idBad || !picked || !(f.idChecked && f.idAvailable) || !pwValid(f.pw) || !emailValid(f.email);
 };
 
 function welcomeScreen(){
@@ -113,11 +114,13 @@ function signupScreen(){
   else if(f.idChecked) idMsg = f.idAvailable ? '<div class="id-msg" id="idCheckMsg" style="color:#3f8f4f">사용 가능한 아이디입니다.</div>' : '<div class="id-msg" id="idCheckMsg" style="color:#d9534f">이미 사용 중인 아이디입니다.</div>';
   else idMsg='<div class="id-msg" id="idCheckMsg"></div>';
   var emailBad = f.email && !emailValid(f.email);
+  var idBad = f.id && !/^[a-zA-Z0-9]*$/.test(f.id);
+  var idHint = idBad ? '<div class="pw-hint" style="color:#d9534f">영문 숫자로 입력하세요.</div>' : '';
   return '<div class="auth">'+
     '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><button class="iconbtn" data-action="authGo" data-value="login" aria-label="뒤로">'+icon('back',22)+'</button><div style="font-size:20px;font-weight:800">회원가입</div></div>'+
     signupSchoolField()+
     '<div class="field"><div class="field__label">학년 · 반</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><input class="field__input" data-field="grade" id="af-grade" value="'+escapeAttr(f.grade)+'" placeholder="학년" inputmode="numeric"><input class="field__input" data-field="classNo" id="af-classNo" value="'+escapeAttr(f.classNo)+'" placeholder="반" inputmode="numeric"></div></div>'+
-    '<div class="field"><div class="field__label">아이디</div><div style="display:flex;gap:8px"><input class="field__input" data-field="id" id="af-id" value="'+escapeAttr(f.id)+'" placeholder="영문·숫자로 입력하세요" autocomplete="off" style="flex:1"><button class="btn--check" data-action="checkId">중복확인</button></div>'+idMsg+'</div>'+
+    '<div class="field"><div class="field__label">아이디</div><div style="display:flex;gap:8px"><input class="field__input" data-field="id" id="af-id" value="'+escapeAttr(f.id)+'" placeholder="아이디를 입력하세요" autocomplete="off" style="flex:1"><button class="btn--check" data-action="checkId">중복확인</button></div>'+idHint+idMsg+'</div>'+
     authPwField(true)+
     '<div class="field"><div class="field__label">이메일</div><input class="field__input" data-field="email" id="af-email" value="'+escapeAttr(f.email||'')+'" placeholder="이메일을 입력하세요" autocomplete="off"><div class="pw-hint" id="emailHint" style="color:'+(emailBad?'#d9534f':'var(--ink-faint)')+'">아이디·비밀번호 찾기에 사용할 이메일이에요.</div></div>'+
     '<div style="margin-top:20px"><button class="btn btn--primary" id="authSubmit" data-action="authSignup" disabled>'+(f.busy?'잠시만요…':'회원가입')+'</button></div>'+
@@ -164,7 +167,7 @@ document.addEventListener('input', function(e){
   if(e.target && e.target.id === 'af-newPw') state.form.newPw = e.target.value;
 });
 
-/* render 후 버튼 활성/비활성을 직접 제어 — app-4의 간섭을 덮어씀 */
+/* render 후 버튼 활성/비활성을 직접 제어 */
 (function(){
   var origRender2 = window.render;
   if(typeof origRender2 !== 'function') return;
@@ -173,19 +176,14 @@ document.addEventListener('input', function(e){
     if(state.stage !== 'login') return r;
     var f = state.form;
     var av = state.authView;
-
     var loginBtn = document.getElementById('loginBtn');
     if(loginBtn) loginBtn.disabled = f.busy || !String(f.id||'').trim() || !String(f.pw||'').trim();
-
     var findIdBtn = document.getElementById('findIdBtn');
     if(findIdBtn) findIdBtn.disabled = f.busy || !String(f.email||'').trim();
-
     var resetPwBtn = document.getElementById('resetPwBtn');
     if(resetPwBtn) resetPwBtn.disabled = f.busy || !String(f.id||'').trim() || !String(f.email||'').trim() || !String(f.newPw||'').trim() || !pwValid(f.newPw||'');
-
     var signupBtn = document.getElementById('authSubmit');
     if(signupBtn && av==='signup') signupBtn.disabled = f.busy || authInvalidSignup();
-
     return r;
   };
 })();
