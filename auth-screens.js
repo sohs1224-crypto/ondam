@@ -109,12 +109,13 @@ function signupSchoolField(){
 
 function signupScreen(){
   var f = state.form;
+  var idBad = f.id && !/^[a-zA-Z0-9]*$/.test(f.id);
   var idMsg;
   if(f.idChecking) idMsg='<div class="id-msg" id="idCheckMsg">확인 중…</div>';
+  else if(idBad) idMsg='<div class="id-msg" id="idCheckMsg"></div>';
   else if(f.idChecked) idMsg = f.idAvailable ? '<div class="id-msg" id="idCheckMsg" style="color:#3f8f4f">사용 가능한 아이디입니다.</div>' : '<div class="id-msg" id="idCheckMsg" style="color:#d9534f">이미 사용 중인 아이디입니다.</div>';
   else idMsg='<div class="id-msg" id="idCheckMsg"></div>';
   var emailBad = f.email && !emailValid(f.email);
-  var idBad = f.id && !/^[a-zA-Z0-9]*$/.test(f.id);
   var idHint = idBad ? '<div class="pw-hint" style="color:#d9534f">영문 숫자로 입력하세요.</div>' : '';
   return '<div class="auth">'+
     '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><button class="iconbtn" data-action="authGo" data-value="login" aria-label="뒤로">'+icon('back',22)+'</button><div style="font-size:20px;font-weight:800">회원가입</div></div>'+
@@ -167,7 +168,6 @@ document.addEventListener('input', function(e){
   if(e.target && e.target.id === 'af-newPw') state.form.newPw = e.target.value;
 });
 
-/* render 후 버튼 활성/비활성을 직접 제어 */
 (function(){
   var origRender2 = window.render;
   if(typeof origRender2 !== 'function') return;
