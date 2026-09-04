@@ -111,6 +111,28 @@
     }
   });
 
+  /* ===== 회원 탈퇴: 서버 계정을 실제로 삭제 =====
+     app-4 의 confirmDelete 처리보다 먼저 잡아야 하므로 캡처 단계에서 듣습니다. */
+  document.addEventListener('click', function(e){
+    var el = e.target.closest ? e.target.closest('[data-action]') : null;
+    if(!el || el.getAttribute('data-action') !== 'confirmDelete') return;
+    var pd = state.pendingDelete;
+    if(!pd || pd.kind !== 'withdraw') return;
+    if(!db) return;
+
+    e.stopImmediatePropagation();
+    e.preventDefault();
+    state.pendingDelete = null;
+
+    db.rpc('delete_my_account').then(function(r){
+      if(r.error) console.error('[온담] 탈퇴 실패:', r.error.message);
+      return db.auth.signOut();
+    }).then(function(){
+      try{ localStorage.clear(); sessionStorage.clear(); }catch(err){}
+      location.reload();
+    });
+  }, true);
+
   /* 로그인 직후 학교생활 데이터 불러오기 */
   var origLoadMyProfile = window.loadMyProfile;
   if(typeof origLoadMyProfile === 'function'){
