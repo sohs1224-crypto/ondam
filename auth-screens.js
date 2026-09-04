@@ -50,7 +50,7 @@ function loginScreen(){
     '<div class="field"><div class="field__label">아이디</div><input class="field__input" data-field="id" id="af-id" value="'+escapeAttr(f.id)+'" placeholder="아이디를 입력하세요" autocomplete="off"></div>'+
     '<div class="field"><div class="field__label">비밀번호</div><input class="field__input" data-field="pw" id="af-pw" type="password" value="'+escapeAttr(f.pw)+'" placeholder="비밀번호를 입력하세요" autocomplete="off"></div>'+
     '<div style="margin-top:20px"><button class="btn btn--primary" id="loginBtn" data-action="authLogin" disabled>'+(f.busy?'잠시만요…':'로그인')+'</button></div>'+
-    errBox(f.authError)+
+    (f.authError?'<div style="color:#d9534f;text-align:center;margin-top:8px;font-size:13px">아이디 또는 비밀번호가 올바르지 않아요.</div>':'')+
     '<div class="auth__links"><span data-action="authGo" data-value="findid">아이디 찾기</span><span class="dot"></span><span data-action="authGo" data-value="findpw">비밀번호 찾기</span></div>'+
   '</div>';
 }
@@ -172,32 +172,34 @@ document.addEventListener('input', function(e){
   if(e.target && e.target.id === 'af-newPw') state.form.newPw = e.target.value;
 });
 
-/* 200ms마다 버튼 상태를 강제 갱신 — app-4가 뭘 하든 덮어씀 */
+/* 200ms마다 버튼 상태를 강제 갱신 */
 setInterval(function(){
   if(typeof state==='undefined' || state.stage!=='login') return;
   var f = state.form;
   if(f.busy) return;
   var av = state.authView;
-
   var loginBtn = document.getElementById('loginBtn');
-  if(loginBtn){
-    var ok = String(f.id||'').trim() && String(f.pw||'').trim();
-    loginBtn.disabled = !ok;
-  }
-
+  if(loginBtn) loginBtn.disabled = !(String(f.id||'').trim() && String(f.pw||'').trim());
   var findIdBtn = document.getElementById('findIdBtn');
-  if(findIdBtn){
-    findIdBtn.disabled = !String(f.email||'').trim();
-  }
-
+  if(findIdBtn) findIdBtn.disabled = !String(f.email||'').trim();
   var resetPwBtn = document.getElementById('resetPwBtn');
-  if(resetPwBtn){
-    var rpOk = String(f.id||'').trim() && String(f.email||'').trim() && String(f.newPw||'').trim() && pwValid(f.newPw||'');
-    resetPwBtn.disabled = !rpOk;
-  }
-
+  if(resetPwBtn) resetPwBtn.disabled = !(String(f.id||'').trim() && String(f.email||'').trim() && String(f.newPw||'').trim() && pwValid(f.newPw||''));
   var signupBtn = document.getElementById('authSubmit');
-  if(signupBtn && av==='signup'){
-    signupBtn.disabled = authInvalidSignup();
-  }
+  if(signupBtn && av==='signup') signupBtn.disabled = authInvalidSignup();
 }, 200);
+
+/* 탈퇴 후 세션 정리: 로그인 상태인데 프로필이 없으면 로그아웃 */
+(function(){
+  setTimeout(function(){
+    if(typeof db==='undefined') return;
+    db.auth.getSession().then(function(res){
+      var s = res && res.data && res.data.session;
+      if(!s) return;
+      db.from('profiles').select('id').eq('id', s.user.id).single().then(function(r){
+        if(r.error || !r.data){
+          db.auth.signOut().then(function(){ location.reload(); });
+        }
+      });
+    });
+  }, 2000);
+})();
