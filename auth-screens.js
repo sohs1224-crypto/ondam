@@ -7,6 +7,12 @@ function errBox(msg){
   return '<div style="background:#fef2f2;border:1px solid #fca5a5;border-radius:10px;padding:12px 16px;margin-top:14px;text-align:center;font-size:14px;color:#dc2626">'+escapeHtml(msg)+'</div>';
 }
 
+/* 전화번호 형식 검사 (숫자 10~11자리) */
+function phoneValid(p){
+  var d = String(p||'').replace(/[^0-9]/g,'');
+  return d.length >= 10 && d.length <= 11;
+}
+
 function authPwField(withHint){
   var f = state.form;
   var bad = f.pw && !pwValid(f.pw);
@@ -20,10 +26,11 @@ function authPwField(withHint){
 
 authInvalidSignup = function(){
   var f = state.form;
-  var miss = ['school','grade','classNo','id','pw','email'].some(function(k){ return !String(f[k]||'').trim(); });
+  var miss = ['school','grade','classNo','id','pw','email','phone'].some(function(k){ return !String(f[k]||'').trim(); });
   var picked = !!(f.atptCode && f.schulCode);
   var idBad = f.id && !/^[a-zA-Z0-9]+$/.test(f.id);
-  return miss || idBad || !picked || !(f.idChecked && f.idAvailable) || !pwValid(f.pw) || !emailValid(f.email);
+  return miss || idBad || !picked || !(f.idChecked && f.idAvailable)
+    || !pwValid(f.pw) || !emailValid(f.email) || !f.phoneVerified;
 };
 
 function welcomeScreen(){
@@ -55,20 +62,50 @@ function loginScreen(){
   '</div>';
 }
 
+/* ══════════════════════════════════════
+   아이디 찾기 — 전화번호 또는 이메일
+   ══════════════════════════════════════ */
 findIdScreen = function(){
   var f = state.form;
+
   if(f.foundId){
     return '<div class="auth">'+
       '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><button class="iconbtn" data-action="authGo" data-value="loginForm" aria-label="뒤로">'+icon('back',22)+'</button><div style="font-size:20px;font-weight:800">아이디 찾기</div></div>'+
-      '<div style="text-align:center;margin:40px 0"><p style="font-size:14px;color:#888;margin:0 0 12px">입력하신 이메일로 등록된 아이디입니다.</p><div style="font-size:22px;font-weight:800;color:#1a1a1a;background:#f4f4f4;padding:16px;border-radius:12px">'+escapeHtml(f.foundId)+'</div></div>'+
+      '<div style="text-align:center;margin:40px 0"><p style="font-size:14px;color:#888;margin:0 0 12px">등록된 아이디입니다.</p><div style="font-size:22px;font-weight:800;color:#1a1a1a;background:#f4f4f4;padding:16px;border-radius:12px">'+escapeHtml(f.foundId)+'</div></div>'+
       '<div style="margin-top:20px"><button class="btn btn--primary" data-action="authGo" data-value="loginForm">로그인하러 가기</button></div>'+
     '</div>';
   }
+
+  var mode = f.findMode || 'phone';
+  var isPhone = mode === 'phone';
+  var tabStyle = function(on){
+    return 'flex:1;padding:11px 0;font-size:14px;font-weight:'+(on?'700':'400')+
+      ';border:none;cursor:pointer;background:'+(on?'#8fae7e':'#f4f4f4')+
+      ';color:'+(on?'#fff':'#888')+';font-family:inherit';
+  };
+
   return '<div class="auth">'+
     '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><button class="iconbtn" data-action="authGo" data-value="loginForm" aria-label="뒤로">'+icon('back',22)+'</button><div style="font-size:20px;font-weight:800">아이디 찾기</div></div>'+
-    '<p style="font-size:13px;color:#888;margin:0 0 16px">가입 시 등록한 이메일을 입력해 주세요.</p>'+
-    '<div class="field"><div class="field__label">이메일</div><input class="field__input" data-field="email" id="af-email" value="'+escapeAttr(f.email||'')+'" placeholder="이메일을 입력하세요" autocomplete="off"></div>'+
-    '<div style="margin-top:20px"><button class="btn btn--primary" id="findIdBtn" data-action="findId" disabled>'+(f.busy?'잠시만요…':'아이디 찾기')+'</button></div>'+
+    '<p style="font-size:13px;color:#888;margin:0 0 16px">가입 시 등록한 정보로 아이디를 찾을 수 있어요.</p>'+
+
+    '<div style="display:flex;border-radius:10px;overflow:hidden;margin-bottom:18px">'+
+      '<button data-action="findMode" data-value="phone" style="'+tabStyle(isPhone)+'">전화번호</button>'+
+      '<button data-action="findMode" data-value="email" style="'+tabStyle(!isPhone)+'">본인확인 이메일</button>'+
+    '</div>'+
+
+    (isPhone
+      ? '<div class="field"><div class="field__label">전화번호</div>'+
+        '<div style="display:flex;gap:8px">'+
+          '<input class="field__input" data-field="findPhone" id="af-findPhone" value="'+escapeAttr(f.findPhone||'')+'" placeholder="010-0000-0000" inputmode="numeric" autocomplete="off" style="flex:1">'+
+          '<button class="btn--check" id="findIdBtn" data-action="findId">다음</button>'+
+        '</div></div>'
+      : '<div class="field"><div class="field__label">본인확인 이메일</div>'+
+        '<div style="display:flex;gap:8px">'+
+          '<input class="field__input" data-field="email" id="af-email" value="'+escapeAttr(f.email||'')+'" placeholder="이메일을 입력하세요" autocomplete="off" style="flex:1">'+
+          '<button class="btn--check" id="findIdBtn" data-action="findId">다음</button>'+
+        '</div></div>'
+    )+
+
     errBox(f.authError)+
   '</div>';
 };
@@ -107,6 +144,41 @@ function signupSchoolField(){
   return '<div class="field" style="position:relative"><div class="field__label">학교</div><div style="position:relative"><input class="field__input" data-field="school" id="af-school" value="'+escapeAttr(f.school)+'" placeholder="학교명을 입력하세요" autocomplete="off" style="'+lockStyle+'"'+lockAttr+'>'+iconBtn+'</div><div class="ac-list" id="authSchoolAC"></div>'+msg+'</div>';
 }
 
+/* 전화번호 + 인증번호 입력칸 */
+function signupPhoneField(){
+  var f = state.form;
+  var sent = !!f.codeSent;
+  var verified = !!f.phoneVerified;
+  var pBad = f.phone && !phoneValid(f.phone);
+
+  if(verified){
+    return '<div class="field"><div class="field__label">전화번호</div>'+
+      '<input class="field__input" value="'+escapeAttr(f.phone||'')+'" readonly style="background:var(--neutral-fill)">'+
+      '<div class="id-msg" style="color:#3f8f4f">인증이 완료되었어요.</div>'+
+    '</div>';
+  }
+
+  var html = '<div class="field"><div class="field__label">전화번호</div>'+
+    '<div style="display:flex;gap:8px">'+
+      '<input class="field__input" data-field="phone" id="af-phone" value="'+escapeAttr(f.phone||'')+'" placeholder="010-0000-0000" inputmode="numeric" autocomplete="off" style="flex:1"'+(sent?' readonly':'')+'>'+
+      '<button class="btn--check" data-action="sendCode">'+(sent?'재전송':'인증요청')+'</button>'+
+    '</div>';
+
+  if(pBad && !sent) html += '<div class="pw-hint" style="color:#d9534f">올바른 전화번호를 입력하세요.</div>';
+
+  if(sent){
+    html += '<div style="display:flex;gap:8px;margin-top:8px">'+
+        '<input class="field__input" data-field="code" id="af-code" value="'+escapeAttr(f.code||'')+'" placeholder="인증번호 6자리" inputmode="numeric" maxlength="6" autocomplete="off" style="flex:1">'+
+        '<button class="btn--check" data-action="verifyCode">확인</button>'+
+      '</div>'+
+      '<div class="pw-hint" style="color:var(--ink-faint)">인증번호를 입력해 주세요.</div>';
+    if(f.codeError) html += '<div class="pw-hint" style="color:#d9534f">'+escapeHtml(f.codeError)+'</div>';
+  }
+
+  html += '</div>';
+  return html;
+}
+
 function signupScreen(){
   var f = state.form;
   var idBad = f.id && !/^[a-zA-Z0-9]*$/.test(f.id);
@@ -123,6 +195,7 @@ function signupScreen(){
     '<div class="field"><div class="field__label">학년 · 반</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><input class="field__input" data-field="grade" id="af-grade" value="'+escapeAttr(f.grade)+'" placeholder="학년" inputmode="numeric"><input class="field__input" data-field="classNo" id="af-classNo" value="'+escapeAttr(f.classNo)+'" placeholder="반" inputmode="numeric"></div></div>'+
     '<div class="field"><div class="field__label">아이디</div><div style="display:flex;gap:8px"><input class="field__input" data-field="id" id="af-id" value="'+escapeAttr(f.id)+'" placeholder="아이디를 입력하세요" autocomplete="off" style="flex:1"><button class="btn--check" data-action="checkId">중복확인</button></div>'+idHint+idMsg+'</div>'+
     authPwField(true)+
+    signupPhoneField()+
     '<div class="field"><div class="field__label">이메일</div><input class="field__input" data-field="email" id="af-email" value="'+escapeAttr(f.email||'')+'" placeholder="이메일을 입력하세요" autocomplete="off"><div class="pw-hint" id="emailHint" style="color:'+(emailBad?'#d9534f':'var(--ink-faint)')+'">아이디·비밀번호 찾기에 사용할 이메일이에요.</div></div>'+
     '<div style="margin-top:20px"><button class="btn btn--primary" id="authSubmit" data-action="authSignup" disabled>'+(f.busy?'잠시만요…':'회원가입')+'</button></div>'+
     errBox(f.authError)+
@@ -138,7 +211,7 @@ authScreen = function(){
 };
 
 var LOGIN_FIELDS = ['id','pw'];
-reqFields = function(){ return state.authView==='signup' ? ['school','grade','classNo','id','pw','email'] : LOGIN_FIELDS; };
+reqFields = function(){ return state.authView==='signup' ? ['school','grade','classNo','id','pw','email','phone'] : LOGIN_FIELDS; };
 
 document.addEventListener('click', function(e){
   var el = e.target.closest ? e.target.closest('[data-action]') : null;
@@ -146,30 +219,68 @@ document.addEventListener('click', function(e){
   var action = el.getAttribute('data-action');
   var value = el.getAttribute('data-value');
   var f = state.form;
+
   if(action==='checkId' && f.id && !/^[a-zA-Z0-9]+$/.test(f.id)){
     e.stopImmediatePropagation(); e.preventDefault();
     f.idChecking=false; f.idChecked=false; render(); return;
   }
+
+  /* 아이디 찾기 방식 전환 */
+  if(action==='findMode'){
+    e.stopImmediatePropagation(); e.preventDefault();
+    f.findMode = value; f.authError=''; f.findPhone=''; f.email='';
+    render(); return;
+  }
+
+  /* 인증번호 요청 — 지금은 UI만, 실제 발송은 추후 연결 */
+  if(action==='sendCode'){
+    e.stopImmediatePropagation(); e.preventDefault();
+    if(!phoneValid(f.phone)){ render(); return; }
+    f.codeSent = true; f.code=''; f.codeError=''; f.phoneVerified=false;
+    render(); return;
+  }
+
+  /* 인증번호 확인 — 지금은 6자리면 통과 */
+  if(action==='verifyCode'){
+    e.stopImmediatePropagation(); e.preventDefault();
+    var c = String(f.code||'').replace(/[^0-9]/g,'');
+    if(c.length !== 6){ f.codeError='인증번호 6자리를 입력해 주세요.'; render(); return; }
+    f.phoneVerified = true; f.codeError=''; render(); return;
+  }
+
   if(action==='authGo'&&value==='loginForm'){f.id='';f.pw='';f.authError='';f.resetOk=false;f.foundId='';}
   if(action==='authGo'&&value==='findpw'){f.id='';f.email='';f.newPw='';f.authError='';f.resetOk=false;}
-  if(action==='authGo'&&value==='findid'){f.email='';f.authError='';f.foundId='';}
+  if(action==='authGo'&&value==='findid'){f.email='';f.findPhone='';f.authError='';f.foundId='';f.findMode='phone';}
+  if(action==='authGo'&&value==='signup'){f.phone='';f.code='';f.codeSent=false;f.phoneVerified=false;f.codeError='';}
   if(action==='authLogin'){f.school=f.school||me.school||'온담고등학교';f.grade=f.grade||me.grade||1;f.classNo=f.classNo||me.classNo||1;}
+
   if(action==='resetPw'){
     e.stopImmediatePropagation();
     f.busy=true;f.authError='';render();
     db.rpc('reset_password',{login_id_in:String(f.id||'').trim(),email_in:String(f.email||'').trim(),new_pw:String(f.newPw||'').trim()})
       .then(function(r){f.busy=false;if(r.error){f.authError='처리 중 오류가 발생했습니다.';render();return;}if(r.data===true){f.resetOk=true;f.authError='';}else{f.authError='아이디 또는 이메일이 일치하지 않습니다.';}render();});
   }
+
   if(action==='findId'){
     e.stopImmediatePropagation();
+    var contact = (f.findMode==='email') ? String(f.email||'').trim() : String(f.findPhone||'').trim();
+    if(!contact){ render(); return; }
     f.busy=true;f.authError='';render();
-    db.rpc('find_login_id',{email_in:String(f.email||'').trim()})
-      .then(function(r){f.busy=false;if(r.error||!r.data){f.authError='해당 이메일로 등록된 아이디가 없습니다.';render();return;}f.foundId=r.data;f.authError='';render();});
+    db.rpc('find_login_id_by',{contact:contact})
+      .then(function(r){
+        f.busy=false;
+        if(r.error||!r.data){ f.authError='등록된 아이디를 찾지 못했어요.'; render(); return; }
+        f.foundId=r.data; f.authError=''; render();
+      });
   }
 }, true);
 
 document.addEventListener('input', function(e){
-  if(e.target && e.target.id === 'af-newPw') state.form.newPw = e.target.value;
+  var t = e.target; if(!t) return;
+  if(t.id === 'af-newPw') state.form.newPw = t.value;
+  if(t.id === 'af-phone') state.form.phone = t.value;
+  if(t.id === 'af-code') state.form.code = t.value;
+  if(t.id === 'af-findPhone') state.form.findPhone = t.value;
 });
 
 /* 200ms마다 버튼 상태를 강제 갱신 */
@@ -178,17 +289,24 @@ setInterval(function(){
   var f = state.form;
   if(f.busy) return;
   var av = state.authView;
+
   var loginBtn = document.getElementById('loginBtn');
   if(loginBtn) loginBtn.disabled = !(String(f.id||'').trim() && String(f.pw||'').trim());
+
   var findIdBtn = document.getElementById('findIdBtn');
-  if(findIdBtn) findIdBtn.disabled = !String(f.email||'').trim();
+  if(findIdBtn){
+    var contact = (f.findMode==='email') ? String(f.email||'').trim() : String(f.findPhone||'').trim();
+    findIdBtn.disabled = !contact;
+  }
+
   var resetPwBtn = document.getElementById('resetPwBtn');
   if(resetPwBtn) resetPwBtn.disabled = !(String(f.id||'').trim() && String(f.email||'').trim() && String(f.newPw||'').trim() && pwValid(f.newPw||''));
+
   var signupBtn = document.getElementById('authSubmit');
   if(signupBtn && av==='signup') signupBtn.disabled = authInvalidSignup();
 }, 200);
 
-/* 탈퇴 후 세션 정리: 로그인 상태인데 프로필이 없으면 로그아웃 */
+/* 탈퇴 후 세션 정리 */
 (function(){
   setTimeout(function(){
     if(typeof db==='undefined') return;
