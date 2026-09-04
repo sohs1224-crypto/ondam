@@ -140,23 +140,16 @@ authScreen = function(){
 var LOGIN_FIELDS = ['id','pw'];
 reqFields = function(){ return state.authView==='signup' ? ['school','grade','classNo','id','pw','email'] : LOGIN_FIELDS; };
 
-/* 영문숫자가 아닌 아이디로 중복확인 누르면 차단 */
 document.addEventListener('click', function(e){
   var el = e.target.closest ? e.target.closest('[data-action]') : null;
   if(!el) return;
   var action = el.getAttribute('data-action');
   var value = el.getAttribute('data-value');
   var f = state.form;
-
   if(action==='checkId' && f.id && !/^[a-zA-Z0-9]+$/.test(f.id)){
-    e.stopImmediatePropagation();
-    e.preventDefault();
-    f.idChecking = false;
-    f.idChecked = false;
-    render();
-    return;
+    e.stopImmediatePropagation(); e.preventDefault();
+    f.idChecking=false; f.idChecked=false; render(); return;
   }
-
   if(action==='authGo'&&value==='loginForm'){f.id='';f.pw='';f.authError='';f.resetOk=false;f.foundId='';}
   if(action==='authGo'&&value==='findpw'){f.id='';f.email='';f.newPw='';f.authError='';f.resetOk=false;}
   if(action==='authGo'&&value==='findid'){f.email='';f.authError='';f.foundId='';}
@@ -179,21 +172,32 @@ document.addEventListener('input', function(e){
   if(e.target && e.target.id === 'af-newPw') state.form.newPw = e.target.value;
 });
 
-(function(){
-  var origRender2 = window.render;
-  if(typeof origRender2 !== 'function') return;
-  window.render = function(){
-    var r = origRender2.apply(this, arguments);
-    if(state.stage !== 'login') return r;
-    var f = state.form;
-    var loginBtn = document.getElementById('loginBtn');
-    if(loginBtn) loginBtn.disabled = f.busy || !String(f.id||'').trim() || !String(f.pw||'').trim();
-    var findIdBtn = document.getElementById('findIdBtn');
-    if(findIdBtn) findIdBtn.disabled = f.busy || !String(f.email||'').trim();
-    var resetPwBtn = document.getElementById('resetPwBtn');
-    if(resetPwBtn) resetPwBtn.disabled = f.busy || !String(f.id||'').trim() || !String(f.email||'').trim() || !String(f.newPw||'').trim() || !pwValid(f.newPw||'');
-    var signupBtn = document.getElementById('authSubmit');
-    if(signupBtn && state.authView==='signup') signupBtn.disabled = f.busy || authInvalidSignup();
-    return r;
-  };
-})();
+/* 200ms마다 버튼 상태를 강제 갱신 — app-4가 뭘 하든 덮어씀 */
+setInterval(function(){
+  if(typeof state==='undefined' || state.stage!=='login') return;
+  var f = state.form;
+  if(f.busy) return;
+  var av = state.authView;
+
+  var loginBtn = document.getElementById('loginBtn');
+  if(loginBtn){
+    var ok = String(f.id||'').trim() && String(f.pw||'').trim();
+    loginBtn.disabled = !ok;
+  }
+
+  var findIdBtn = document.getElementById('findIdBtn');
+  if(findIdBtn){
+    findIdBtn.disabled = !String(f.email||'').trim();
+  }
+
+  var resetPwBtn = document.getElementById('resetPwBtn');
+  if(resetPwBtn){
+    var rpOk = String(f.id||'').trim() && String(f.email||'').trim() && String(f.newPw||'').trim() && pwValid(f.newPw||'');
+    resetPwBtn.disabled = !rpOk;
+  }
+
+  var signupBtn = document.getElementById('authSubmit');
+  if(signupBtn && av==='signup'){
+    signupBtn.disabled = authInvalidSignup();
+  }
+}, 200);
