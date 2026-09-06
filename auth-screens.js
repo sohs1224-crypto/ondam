@@ -1,4 +1,4 @@
-/* ===== 시작 · 학교선택 · 학년선택 · 로그인 · 회원가입 · 비밀번호/아이디 찾기 화면 ===== */
+/* ===== 시작 · 학교선택 · 학년선택 · 닉네임 · 로그인 · 회원가입 · 비밀번호/아이디 찾기 화면 ===== */
 
 var ONDAM_LOGO = 'logo.png';
 
@@ -25,7 +25,7 @@ function authPwField(withHint){
 
 authInvalidSignup = function(){
   var f = state.form;
-  var miss = ['school','grade','classNo','id','pw','email','phone'].some(function(k){ return !String(f[k]||'').trim(); });
+  var miss = ['school','grade','classNo','id','pw','email','phone','nickname'].some(function(k){ return !String(f[k]||'').trim(); });
   var picked = !!(f.atptCode && f.schulCode);
   var idBad = f.id && !/^[a-zA-Z0-9]+$/.test(f.id);
   return miss || idBad || !picked || !(f.idChecked && f.idAvailable)
@@ -115,6 +115,37 @@ function signupGradeScreen(){
       'padding:12px 24px calc(12px + env(safe-area-inset-bottom, 0px));'+
       'border-top:1px solid #eee;z-index:100">'+
       '<button class="btn btn--primary" id="gradeNextBtn" data-action="gradeNext" disabled '+
+        'style="width:100%;padding:16px 0;font-size:16px;font-weight:700;border-radius:12px;border:none;font-family:inherit">다음</button>'+
+    '</div>'+
+  '</div>';
+}
+
+/* ══════════════════════════════════════
+   3단계: 닉네임 입력
+   ══════════════════════════════════════ */
+function signupNickScreen(){
+  var f = state.form;
+  var nick = f.nickname || '';
+  var tooLong = nick.length > 12;
+
+  return '<div style="min-height:100vh;padding:0 0 96px 0;background:#fff">'+
+    '<div class="auth" style="padding-bottom:0">'+
+      '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">'+
+        '<button class="iconbtn" data-action="authGo" data-value="signupGrade" aria-label="뒤로">'+icon('back',22)+'</button>'+
+        '<div style="font-size:20px;font-weight:800">닉네임 설정</div>'+
+      '</div>'+
+      '<p style="font-size:13px;color:#888;margin:6px 0 24px">온담에서 사용할 닉네임을 정해주세요.</p>'+
+      '<div class="field">'+
+        '<div class="field__label">닉네임</div>'+
+        '<input class="field__input" data-field="nickname" id="af-nickname" value="'+escapeAttr(nick)+'" placeholder="닉네임을 입력하세요" autocomplete="off" maxlength="12">'+
+        '<div class="pw-hint" style="color:'+(tooLong?'#d9534f':'var(--ink-faint)')+'">12자 이내로 입력해 주세요.</div>'+
+      '</div>'+
+    '</div>'+
+
+    '<div id="schoolNextBar" style="position:fixed;left:0;right:0;bottom:0;background:#fff;'+
+      'padding:12px 24px calc(12px + env(safe-area-inset-bottom, 0px));'+
+      'border-top:1px solid #eee;z-index:100">'+
+      '<button class="btn btn--primary" id="nickNextBtn" data-action="nickNext" disabled '+
         'style="width:100%;padding:16px 0;font-size:16px;font-weight:700;border-radius:12px;border:none;font-family:inherit">다음</button>'+
     '</div>'+
   '</div>';
@@ -213,7 +244,7 @@ function signupPhoneField(){
 }
 
 /* ══════════════════════════════════════
-   3단계: 나머지 정보 입력
+   4단계: 나머지 정보 입력
    ══════════════════════════════════════ */
 function signupScreen(){
   var f = state.form;
@@ -227,7 +258,10 @@ function signupScreen(){
   var idHint = idBad ? '<div class="pw-hint" style="color:#d9534f">영문 숫자로 입력하세요.</div>' : '';
 
   return '<div class="auth">'+
-    '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><button class="iconbtn" data-action="authGo" data-value="signupGrade" aria-label="뒤로">'+icon('back',22)+'</button><div style="font-size:20px;font-weight:800">회원가입</div></div>'+
+    '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><button class="iconbtn" data-action="authGo" data-value="signupNick" aria-label="뒤로">'+icon('back',22)+'</button><div style="font-size:20px;font-weight:800">회원가입</div></div>'+
+
+    '<div class="field"><div class="field__label">닉네임</div>'+
+      '<input class="field__input" value="'+escapeAttr(f.nickname||'')+'" readonly style="background:var(--neutral-fill)"></div>'+
 
     '<div class="field"><div class="field__label">학교</div>'+
       '<input class="field__input" value="'+escapeAttr(f.school)+'" readonly style="background:var(--neutral-fill)"></div>'+
@@ -247,6 +281,7 @@ authScreen = function(){
   if(state.authView==='findid') return findIdScreen();
   if(state.authView==='signupSchool') return signupSchoolScreen();
   if(state.authView==='signupGrade') return signupGradeScreen();
+  if(state.authView==='signupNick') return signupNickScreen();
   if(state.authView==='signup') return signupScreen();
   if(state.authView==='loginForm') return loginScreen();
   return welcomeScreen();
@@ -277,10 +312,19 @@ document.addEventListener('click', function(e){
     render(); return;
   }
 
-  /* 학년 선택 → 회원가입 */
+  /* 학년 → 닉네임 */
   if(action==='gradeNext'){
     e.stopImmediatePropagation(); e.preventDefault();
     if(!String(f.grade||'').trim()) return;
+    state.authView = 'signupNick';
+    render(); return;
+  }
+
+  /* 닉네임 → 회원가입 */
+  if(action==='nickNext'){
+    e.stopImmediatePropagation(); e.preventDefault();
+    var nk = String(f.nickname||'').trim();
+    if(!nk || nk.length > 12) return;
     state.authView = 'signup';
     render(); return;
   }
@@ -340,6 +384,7 @@ document.addEventListener('click', function(e){
 document.addEventListener('input', function(e){
   var t = e.target; if(!t) return;
   if(t.id === 'af-newPw') state.form.newPw = t.value;
+  if(t.id === 'af-nickname') state.form.nickname = t.value;
   if(t.id === 'af-phone') state.form.phone = t.value;
   if(t.id === 'af-code') state.form.code = t.value;
   if(t.id === 'af-findPhone') state.form.findPhone = t.value;
@@ -357,6 +402,12 @@ setInterval(function(){
 
   var gradeNextBtn = document.getElementById('gradeNextBtn');
   if(gradeNextBtn) gradeNextBtn.disabled = !String(f.grade||'').trim();
+
+  var nickNextBtn = document.getElementById('nickNextBtn');
+  if(nickNextBtn){
+    var nk = String(f.nickname||'').trim();
+    nickNextBtn.disabled = !nk || nk.length > 12;
+  }
 
   var loginBtn = document.getElementById('loginBtn');
   if(loginBtn) loginBtn.disabled = !(String(f.id||'').trim() && String(f.pw||'').trim());
