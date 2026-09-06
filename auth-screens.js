@@ -1,4 +1,4 @@
-/* ===== 시작 · 로그인 · 회원가입 · 비밀번호/아이디 찾기 화면 ===== */
+/* ===== 시작 · 학교선택 · 로그인 · 회원가입 · 비밀번호/아이디 찾기 화면 ===== */
 
 var ONDAM_LOGO = 'logo.png';
 
@@ -7,7 +7,6 @@ function errBox(msg){
   return '<div style="background:#fef2f2;border:1px solid #fca5a5;border-radius:10px;padding:12px 16px;margin-top:14px;text-align:center;font-size:14px;color:#dc2626">'+escapeHtml(msg)+'</div>';
 }
 
-/* 전화번호 형식 검사 (숫자 10~11자리) */
 function phoneValid(p){
   var d = String(p||'').replace(/[^0-9]/g,'');
   return d.length >= 10 && d.length <= 11;
@@ -43,8 +42,49 @@ function welcomeScreen(){
     '</div>'+
     '<div style="flex:1.8"></div>'+
     '<div style="padding-bottom:calc(32px + env(safe-area-inset-bottom, 0px))">'+
-      '<button data-action="authGo" data-value="signup" style="width:100%;padding:17px 0;font-size:17px;font-weight:700;border-radius:12px;border:none;cursor:pointer;background:#8fae7e;color:#fff;font-family:inherit">시작하기</button>'+
+      '<button data-action="authGo" data-value="signupSchool" style="width:100%;padding:17px 0;font-size:17px;font-weight:700;border-radius:12px;border:none;cursor:pointer;background:#8fae7e;color:#fff;font-family:inherit">시작하기</button>'+
       '<div style="text-align:center;margin-top:18px;font-size:13px"><span style="color:#aaa">이미 계정이 있나요? </span><span data-action="authGo" data-value="loginForm" style="color:#8fae7e;font-weight:600;cursor:pointer;text-decoration:underline">로그인</span></div>'+
+    '</div>'+
+  '</div>';
+}
+
+/* ══════════════════════════════════════
+   1단계: 학교 선택
+   ══════════════════════════════════════ */
+function signupSchoolScreen(){
+  var f = state.form;
+  var picked = !!(f.atptCode && f.schulCode);
+  var lockStyle = picked ? 'padding-right:44px;cursor:pointer;background:var(--neutral-fill)' : 'padding-right:44px';
+  var lockAttr = picked ? ' readonly' : '';
+  var iconBtn = '<button type="button" class="in-field-btn" data-action="searchSchool" aria-label="학교 검색">'+icon('search',18)+'</button>';
+  var msg = picked
+    ? '<div class="id-msg" style="color:#3f8f4f">'+escapeHtml(f.school)+' 선택됨</div>'
+    : (f.schoolSearched ? '<div class="id-msg" style="color:#d9534f">목록에서 학교를 선택해 주세요.</div>' : '<div class="id-msg" style="color:var(--ink-faint)">학교명을 입력하고 검색 버튼을 눌러주세요.</div>');
+
+  return '<div style="min-height:100vh;padding:0 0 96px 0;background:#fff">'+
+    '<div class="auth" style="padding-bottom:0">'+
+      '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">'+
+        '<button class="iconbtn" data-action="authGo" data-value="login" aria-label="뒤로">'+icon('back',22)+'</button>'+
+        '<div style="font-size:20px;font-weight:800">학교 선택</div>'+
+      '</div>'+
+      '<p style="font-size:13px;color:#888;margin:6px 0 20px">다니고 있는 학교를 선택해 주세요.</p>'+
+      '<div class="field" style="position:relative">'+
+        '<div class="field__label">학교</div>'+
+        '<div style="position:relative">'+
+          '<input class="field__input" data-field="school" id="af-school" value="'+escapeAttr(f.school)+'" placeholder="학교명을 입력하세요" autocomplete="off" style="'+lockStyle+'"'+lockAttr+'>'+
+          iconBtn+
+        '</div>'+
+        '<div class="ac-list" id="authSchoolAC"></div>'+
+        msg+
+      '</div>'+
+    '</div>'+
+
+    /* 키보드 위에 붙는 다음 버튼 */
+    '<div id="schoolNextBar" style="position:fixed;left:0;right:0;bottom:0;background:#fff;'+
+      'padding:12px 24px calc(12px + env(safe-area-inset-bottom, 0px));'+
+      'border-top:1px solid #eee;z-index:100">'+
+      '<button class="btn btn--primary" id="schoolNextBtn" data-action="schoolNext" disabled '+
+        'style="width:100%;padding:16px 0;font-size:16px;font-weight:700;border-radius:12px;border:none;font-family:inherit">다음</button>'+
     '</div>'+
   '</div>';
 }
@@ -62,12 +102,8 @@ function loginScreen(){
   '</div>';
 }
 
-/* ══════════════════════════════════════
-   아이디 찾기 — 전화번호 또는 이메일
-   ══════════════════════════════════════ */
 findIdScreen = function(){
   var f = state.form;
-
   if(f.foundId){
     return '<div class="auth">'+
       '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><button class="iconbtn" data-action="authGo" data-value="loginForm" aria-label="뒤로">'+icon('back',22)+'</button><div style="font-size:20px;font-weight:800">아이디 찾기</div></div>'+
@@ -75,7 +111,6 @@ findIdScreen = function(){
       '<div style="margin-top:20px"><button class="btn btn--primary" data-action="authGo" data-value="loginForm">로그인하러 가기</button></div>'+
     '</div>';
   }
-
   var mode = f.findMode || 'phone';
   var isPhone = mode === 'phone';
   var tabStyle = function(on){
@@ -83,29 +118,17 @@ findIdScreen = function(){
       ';border:none;cursor:pointer;background:'+(on?'#8fae7e':'#f4f4f4')+
       ';color:'+(on?'#fff':'#888')+';font-family:inherit';
   };
-
   return '<div class="auth">'+
     '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><button class="iconbtn" data-action="authGo" data-value="loginForm" aria-label="뒤로">'+icon('back',22)+'</button><div style="font-size:20px;font-weight:800">아이디 찾기</div></div>'+
     '<p style="font-size:13px;color:#888;margin:0 0 16px">가입 시 등록한 정보로 아이디를 찾을 수 있어요.</p>'+
-
     '<div style="display:flex;border-radius:10px;overflow:hidden;margin-bottom:18px">'+
       '<button data-action="findMode" data-value="phone" style="'+tabStyle(isPhone)+'">전화번호</button>'+
       '<button data-action="findMode" data-value="email" style="'+tabStyle(!isPhone)+'">본인확인 이메일</button>'+
     '</div>'+
-
     (isPhone
-      ? '<div class="field"><div class="field__label">전화번호</div>'+
-        '<div style="display:flex;gap:8px">'+
-          '<input class="field__input" data-field="findPhone" id="af-findPhone" value="'+escapeAttr(f.findPhone||'')+'" placeholder="010-0000-0000" inputmode="numeric" autocomplete="off" style="flex:1">'+
-          '<button class="btn--check" id="findIdBtn" data-action="findId">다음</button>'+
-        '</div></div>'
-      : '<div class="field"><div class="field__label">본인확인 이메일</div>'+
-        '<div style="display:flex;gap:8px">'+
-          '<input class="field__input" data-field="email" id="af-email" value="'+escapeAttr(f.email||'')+'" placeholder="이메일을 입력하세요" autocomplete="off" style="flex:1">'+
-          '<button class="btn--check" id="findIdBtn" data-action="findId">다음</button>'+
-        '</div></div>'
+      ? '<div class="field"><div class="field__label">전화번호</div><div style="display:flex;gap:8px"><input class="field__input" data-field="findPhone" id="af-findPhone" value="'+escapeAttr(f.findPhone||'')+'" placeholder="010-0000-0000" inputmode="numeric" autocomplete="off" style="flex:1"><button class="btn--check" id="findIdBtn" data-action="findId">다음</button></div></div>'
+      : '<div class="field"><div class="field__label">본인확인 이메일</div><div style="display:flex;gap:8px"><input class="field__input" data-field="email" id="af-email" value="'+escapeAttr(f.email||'')+'" placeholder="이메일을 입력하세요" autocomplete="off" style="flex:1"><button class="btn--check" id="findIdBtn" data-action="findId">다음</button></div></div>'
     )+
-
     errBox(f.authError)+
   '</div>';
 };
@@ -132,53 +155,35 @@ findPwScreen = function(){
   '</div>';
 };
 
-function signupSchoolField(){
-  var f = state.form;
-  var picked = !!(f.atptCode && f.schulCode);
-  var lockStyle = picked ? 'padding-right:44px;cursor:pointer;background:var(--neutral-fill)' : 'padding-right:44px';
-  var lockAttr = picked ? ' readonly' : '';
-  var iconBtn = '<button type="button" class="in-field-btn" data-action="searchSchool" aria-label="학교 검색">'+icon('search',18)+'</button>';
-  var msg = picked
-    ? '<div class="id-msg" style="color:#3f8f4f">'+escapeHtml(f.school)+' 선택됨</div>'
-    : (f.schoolSearched ? '<div class="id-msg" style="color:#d9534f">목록에서 학교를 선택해 주세요.</div>' : '<div class="id-msg" style="color:var(--ink-faint)">학교명을 입력하고 검색 버튼을 눌러주세요.</div>');
-  return '<div class="field" style="position:relative"><div class="field__label">학교</div><div style="position:relative"><input class="field__input" data-field="school" id="af-school" value="'+escapeAttr(f.school)+'" placeholder="학교명을 입력하세요" autocomplete="off" style="'+lockStyle+'"'+lockAttr+'>'+iconBtn+'</div><div class="ac-list" id="authSchoolAC"></div>'+msg+'</div>';
-}
-
-/* 전화번호 + 인증번호 입력칸 */
 function signupPhoneField(){
   var f = state.form;
   var sent = !!f.codeSent;
   var verified = !!f.phoneVerified;
   var pBad = f.phone && !phoneValid(f.phone);
-
   if(verified){
     return '<div class="field"><div class="field__label">전화번호</div>'+
       '<input class="field__input" value="'+escapeAttr(f.phone||'')+'" readonly style="background:var(--neutral-fill)">'+
-      '<div class="id-msg" style="color:#3f8f4f">인증이 완료되었어요.</div>'+
-    '</div>';
+      '<div class="id-msg" style="color:#3f8f4f">인증이 완료되었어요.</div></div>';
   }
-
   var html = '<div class="field"><div class="field__label">전화번호</div>'+
     '<div style="display:flex;gap:8px">'+
       '<input class="field__input" data-field="phone" id="af-phone" value="'+escapeAttr(f.phone||'')+'" placeholder="010-0000-0000" inputmode="numeric" autocomplete="off" style="flex:1"'+(sent?' readonly':'')+'>'+
       '<button class="btn--check" data-action="sendCode">'+(sent?'재전송':'인증요청')+'</button>'+
     '</div>';
-
   if(pBad && !sent) html += '<div class="pw-hint" style="color:#d9534f">올바른 전화번호를 입력하세요.</div>';
-
   if(sent){
     html += '<div style="display:flex;gap:8px;margin-top:8px">'+
         '<input class="field__input" data-field="code" id="af-code" value="'+escapeAttr(f.code||'')+'" placeholder="인증번호 6자리" inputmode="numeric" maxlength="6" autocomplete="off" style="flex:1">'+
         '<button class="btn--check" data-action="verifyCode">확인</button>'+
-      '</div>'+
-      '<div class="pw-hint" style="color:var(--ink-faint)">인증번호를 입력해 주세요.</div>';
+      '</div><div class="pw-hint" style="color:var(--ink-faint)">인증번호를 입력해 주세요.</div>';
     if(f.codeError) html += '<div class="pw-hint" style="color:#d9534f">'+escapeHtml(f.codeError)+'</div>';
   }
-
-  html += '</div>';
-  return html;
+  return html + '</div>';
 }
 
+/* ══════════════════════════════════════
+   2단계: 나머지 정보 입력
+   ══════════════════════════════════════ */
 function signupScreen(){
   var f = state.form;
   var idBad = f.id && !/^[a-zA-Z0-9]*$/.test(f.id);
@@ -189,9 +194,13 @@ function signupScreen(){
   else idMsg='<div class="id-msg" id="idCheckMsg"></div>';
   var emailBad = f.email && !emailValid(f.email);
   var idHint = idBad ? '<div class="pw-hint" style="color:#d9534f">영문 숫자로 입력하세요.</div>' : '';
+
   return '<div class="auth">'+
-    '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><button class="iconbtn" data-action="authGo" data-value="login" aria-label="뒤로">'+icon('back',22)+'</button><div style="font-size:20px;font-weight:800">회원가입</div></div>'+
-    signupSchoolField()+
+    '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><button class="iconbtn" data-action="authGo" data-value="signupSchool" aria-label="뒤로">'+icon('back',22)+'</button><div style="font-size:20px;font-weight:800">회원가입</div></div>'+
+
+    '<div class="field"><div class="field__label">학교</div>'+
+      '<input class="field__input" value="'+escapeAttr(f.school)+'" readonly style="background:var(--neutral-fill)"></div>'+
+
     '<div class="field"><div class="field__label">학년 · 반</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><input class="field__input" data-field="grade" id="af-grade" value="'+escapeAttr(f.grade)+'" placeholder="학년" inputmode="numeric"><input class="field__input" data-field="classNo" id="af-classNo" value="'+escapeAttr(f.classNo)+'" placeholder="반" inputmode="numeric"></div></div>'+
     '<div class="field"><div class="field__label">아이디</div><div style="display:flex;gap:8px"><input class="field__input" data-field="id" id="af-id" value="'+escapeAttr(f.id)+'" placeholder="아이디를 입력하세요" autocomplete="off" style="flex:1"><button class="btn--check" data-action="checkId">중복확인</button></div>'+idHint+idMsg+'</div>'+
     authPwField(true)+
@@ -205,6 +214,7 @@ function signupScreen(){
 authScreen = function(){
   if(state.authView==='findpw') return findPwScreen();
   if(state.authView==='findid') return findIdScreen();
+  if(state.authView==='signupSchool') return signupSchoolScreen();
   if(state.authView==='signup') return signupScreen();
   if(state.authView==='loginForm') return loginScreen();
   return welcomeScreen();
@@ -220,19 +230,26 @@ document.addEventListener('click', function(e){
   var value = el.getAttribute('data-value');
   var f = state.form;
 
+  /* 학교 선택 → 다음 단계 */
+  if(action==='schoolNext'){
+    e.stopImmediatePropagation(); e.preventDefault();
+    if(!(f.atptCode && f.schulCode)) return;
+    state.authView = 'signup';
+    f.phone=''; f.code=''; f.codeSent=false; f.phoneVerified=false; f.codeError='';
+    render(); return;
+  }
+
   if(action==='checkId' && f.id && !/^[a-zA-Z0-9]+$/.test(f.id)){
     e.stopImmediatePropagation(); e.preventDefault();
     f.idChecking=false; f.idChecked=false; render(); return;
   }
 
-  /* 아이디 찾기 방식 전환 */
   if(action==='findMode'){
     e.stopImmediatePropagation(); e.preventDefault();
     f.findMode = value; f.authError=''; f.findPhone=''; f.email='';
     render(); return;
   }
 
-  /* 인증번호 요청 — 지금은 UI만, 실제 발송은 추후 연결 */
   if(action==='sendCode'){
     e.stopImmediatePropagation(); e.preventDefault();
     if(!phoneValid(f.phone)){ render(); return; }
@@ -240,7 +257,6 @@ document.addEventListener('click', function(e){
     render(); return;
   }
 
-  /* 인증번호 확인 — 지금은 6자리면 통과 */
   if(action==='verifyCode'){
     e.stopImmediatePropagation(); e.preventDefault();
     var c = String(f.code||'').replace(/[^0-9]/g,'');
@@ -251,7 +267,7 @@ document.addEventListener('click', function(e){
   if(action==='authGo'&&value==='loginForm'){f.id='';f.pw='';f.authError='';f.resetOk=false;f.foundId='';}
   if(action==='authGo'&&value==='findpw'){f.id='';f.email='';f.newPw='';f.authError='';f.resetOk=false;}
   if(action==='authGo'&&value==='findid'){f.email='';f.findPhone='';f.authError='';f.foundId='';f.findMode='phone';}
-  if(action==='authGo'&&value==='signup'){f.phone='';f.code='';f.codeSent=false;f.phoneVerified=false;f.codeError='';}
+  if(action==='authGo'&&value==='signupSchool'){f.school='';f.atptCode=null;f.schulCode=null;f.schoolSearched=false;f.authError='';}
   if(action==='authLogin'){f.school=f.school||me.school||'온담고등학교';f.grade=f.grade||me.grade||1;f.classNo=f.classNo||me.classNo||1;}
 
   if(action==='resetPw'){
@@ -283,12 +299,15 @@ document.addEventListener('input', function(e){
   if(t.id === 'af-findPhone') state.form.findPhone = t.value;
 });
 
-/* 200ms마다 버튼 상태를 강제 갱신 */
+/* 200ms마다 버튼 상태 갱신 */
 setInterval(function(){
   if(typeof state==='undefined' || state.stage!=='login') return;
   var f = state.form;
   if(f.busy) return;
   var av = state.authView;
+
+  var schoolNextBtn = document.getElementById('schoolNextBtn');
+  if(schoolNextBtn) schoolNextBtn.disabled = !(f.atptCode && f.schulCode);
 
   var loginBtn = document.getElementById('loginBtn');
   if(loginBtn) loginBtn.disabled = !(String(f.id||'').trim() && String(f.pw||'').trim());
@@ -306,6 +325,21 @@ setInterval(function(){
   if(signupBtn && av==='signup') signupBtn.disabled = authInvalidSignup();
 }, 200);
 
+/* 모바일 키보드 위로 다음 버튼 올리기 */
+(function(){
+  if(!window.visualViewport) return;
+  function adjustBar(){
+    var bar = document.getElementById('schoolNextBar');
+    if(!bar) return;
+    var vv = window.visualViewport;
+    var gap = window.innerHeight - vv.height - vv.offsetTop;
+    bar.style.transform = gap > 0 ? 'translateY(-'+gap+'px)' : '';
+  }
+  window.visualViewport.addEventListener('resize', adjustBar);
+  window.visualViewport.addEventListener('scroll', adjustBar);
+  setInterval(adjustBar, 300);
+})();
+
 /* 탈퇴 후 세션 정리 */
 (function(){
   setTimeout(function(){
@@ -314,9 +348,7 @@ setInterval(function(){
       var s = res && res.data && res.data.session;
       if(!s) return;
       db.from('profiles').select('id').eq('id', s.user.id).single().then(function(r){
-        if(r.error || !r.data){
-          db.auth.signOut().then(function(){ location.reload(); });
-        }
+        if(r.error || !r.data){ db.auth.signOut().then(function(){ location.reload(); }); }
       });
     });
   }, 2000);
