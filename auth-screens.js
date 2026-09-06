@@ -95,7 +95,7 @@ function signupGradeScreen(){
     var on = sel === String(g);
     return '<button data-action="pickGrade" data-value="'+g+'" '+
       'style="display:block;width:100%;padding:26px 24px;margin-bottom:14px;'+
-      'font-size:20px;font-weight:700;text-align:left;cursor:pointer;font-family:inherit;'+
+      'font-size:20px;font-weight:700;text-align:center;cursor:pointer;font-family:inherit;'+
       'border-radius:14px;border:2px solid '+(on?'#8fae7e':'#e8e8e8')+';'+
       'background:'+(on?'#f2f7ef':'#fff')+';color:'+(on?'#4a6b3a':'#1a1a1a')+'">'+
       g+'학년</button>';
