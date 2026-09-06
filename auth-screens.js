@@ -282,7 +282,6 @@ document.addEventListener('click', function(e){
     e.stopImmediatePropagation(); e.preventDefault();
     if(!String(f.grade||'').trim()) return;
     state.authView = 'signup';
-    f.phone=''; f.code=''; f.codeSent=false; f.phoneVerified=false; f.codeError='';
     render(); return;
   }
 
@@ -314,7 +313,7 @@ document.addEventListener('click', function(e){
   if(action==='authGo'&&value==='loginForm'){f.id='';f.pw='';f.authError='';f.resetOk=false;f.foundId='';}
   if(action==='authGo'&&value==='findpw'){f.id='';f.email='';f.newPw='';f.authError='';f.resetOk=false;}
   if(action==='authGo'&&value==='findid'){f.email='';f.findPhone='';f.authError='';f.foundId='';f.findMode='phone';}
-  if(action==='authGo'&&value==='signupSchool'){f.school='';f.atptCode=null;f.schulCode=null;f.schoolSearched=false;f.grade='';f.authError='';}
+  if(action==='authGo'&&value==='signupSchool'){f.authError='';}
   if(action==='authLogin'){f.school=f.school||me.school||'온담고등학교';f.grade=f.grade||me.grade||1;f.classNo=f.classNo||me.classNo||1;}
 
   if(action==='resetPw'){
