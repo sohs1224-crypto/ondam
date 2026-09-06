@@ -1,4 +1,4 @@
-/* ===== 시작 · 학교선택 · 로그인 · 회원가입 · 비밀번호/아이디 찾기 화면 ===== */
+/* ===== 시작 · 학교선택 · 학년선택 · 로그인 · 회원가입 · 비밀번호/아이디 찾기 화면 ===== */
 
 var ONDAM_LOGO = 'logo.png';
 
@@ -75,11 +75,46 @@ function signupSchoolScreen(){
       '</div>'+
     '</div>'+
 
-    /* 키보드 위에 붙는 다음 버튼 */
     '<div id="schoolNextBar" style="position:fixed;left:0;right:0;bottom:0;background:#fff;'+
       'padding:12px 24px calc(12px + env(safe-area-inset-bottom, 0px));'+
       'border-top:1px solid #eee;z-index:100">'+
       '<button class="btn btn--primary" id="schoolNextBtn" data-action="schoolNext" disabled '+
+        'style="width:100%;padding:16px 0;font-size:16px;font-weight:700;border-radius:12px;border:none;font-family:inherit">다음</button>'+
+    '</div>'+
+  '</div>';
+}
+
+/* ══════════════════════════════════════
+   2단계: 학년 선택
+   ══════════════════════════════════════ */
+function signupGradeScreen(){
+  var f = state.form;
+  var sel = String(f.grade||'');
+
+  var card = function(g){
+    var on = sel === String(g);
+    return '<button data-action="pickGrade" data-value="'+g+'" '+
+      'style="display:block;width:100%;padding:26px 24px;margin-bottom:14px;'+
+      'font-size:20px;font-weight:700;text-align:left;cursor:pointer;font-family:inherit;'+
+      'border-radius:14px;border:2px solid '+(on?'#8fae7e':'#e8e8e8')+';'+
+      'background:'+(on?'#f2f7ef':'#fff')+';color:'+(on?'#4a6b3a':'#1a1a1a')+'">'+
+      g+'학년</button>';
+  };
+
+  return '<div style="min-height:100vh;padding:0 0 96px 0;background:#fff">'+
+    '<div class="auth" style="padding-bottom:0">'+
+      '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">'+
+        '<button class="iconbtn" data-action="authGo" data-value="signupSchool" aria-label="뒤로">'+icon('back',22)+'</button>'+
+        '<div style="font-size:20px;font-weight:800">학년 선택</div>'+
+      '</div>'+
+      '<p style="font-size:13px;color:#888;margin:6px 0 24px">몇 학년인가요?</p>'+
+      card(1)+card(2)+card(3)+
+    '</div>'+
+
+    '<div id="schoolNextBar" style="position:fixed;left:0;right:0;bottom:0;background:#fff;'+
+      'padding:12px 24px calc(12px + env(safe-area-inset-bottom, 0px));'+
+      'border-top:1px solid #eee;z-index:100">'+
+      '<button class="btn btn--primary" id="gradeNextBtn" data-action="gradeNext" disabled '+
         'style="width:100%;padding:16px 0;font-size:16px;font-weight:700;border-radius:12px;border:none;font-family:inherit">다음</button>'+
     '</div>'+
   '</div>';
@@ -178,7 +213,7 @@ function signupPhoneField(){
 }
 
 /* ══════════════════════════════════════
-   2단계: 나머지 정보 입력
+   3단계: 나머지 정보 입력
    ══════════════════════════════════════ */
 function signupScreen(){
   var f = state.form;
@@ -192,12 +227,12 @@ function signupScreen(){
   var idHint = idBad ? '<div class="pw-hint" style="color:#d9534f">영문 숫자로 입력하세요.</div>' : '';
 
   return '<div class="auth">'+
-    '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><button class="iconbtn" data-action="authGo" data-value="signupSchool" aria-label="뒤로">'+icon('back',22)+'</button><div style="font-size:20px;font-weight:800">회원가입</div></div>'+
+    '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><button class="iconbtn" data-action="authGo" data-value="signupGrade" aria-label="뒤로">'+icon('back',22)+'</button><div style="font-size:20px;font-weight:800">회원가입</div></div>'+
 
     '<div class="field"><div class="field__label">학교</div>'+
       '<input class="field__input" value="'+escapeAttr(f.school)+'" readonly style="background:var(--neutral-fill)"></div>'+
 
-    '<div class="field"><div class="field__label">학년 · 반</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><input class="field__input" data-field="grade" id="af-grade" value="'+escapeAttr(f.grade)+'" placeholder="학년" inputmode="numeric"><input class="field__input" data-field="classNo" id="af-classNo" value="'+escapeAttr(f.classNo)+'" placeholder="반" inputmode="numeric"></div></div>'+
+    '<div class="field"><div class="field__label">학년 · 반</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><input class="field__input" value="'+escapeAttr(f.grade)+'학년" readonly style="background:var(--neutral-fill)"><input class="field__input" data-field="classNo" id="af-classNo" value="'+escapeAttr(f.classNo)+'" placeholder="반" inputmode="numeric"></div></div>'+
     '<div class="field"><div class="field__label">아이디</div><div style="display:flex;gap:8px"><input class="field__input" data-field="id" id="af-id" value="'+escapeAttr(f.id)+'" placeholder="아이디를 입력하세요" autocomplete="off" style="flex:1"><button class="btn--check" data-action="checkId">중복확인</button></div>'+idHint+idMsg+'</div>'+
     authPwField(true)+
     signupPhoneField()+
@@ -211,6 +246,7 @@ authScreen = function(){
   if(state.authView==='findpw') return findPwScreen();
   if(state.authView==='findid') return findIdScreen();
   if(state.authView==='signupSchool') return signupSchoolScreen();
+  if(state.authView==='signupGrade') return signupGradeScreen();
   if(state.authView==='signup') return signupScreen();
   if(state.authView==='loginForm') return loginScreen();
   return welcomeScreen();
@@ -226,10 +262,25 @@ document.addEventListener('click', function(e){
   var value = el.getAttribute('data-value');
   var f = state.form;
 
-  /* 학교 선택 → 다음 단계 */
+  /* 학교 선택 → 학년 선택 */
   if(action==='schoolNext'){
     e.stopImmediatePropagation(); e.preventDefault();
     if(!(f.atptCode && f.schulCode)) return;
+    state.authView = 'signupGrade';
+    render(); return;
+  }
+
+  /* 학년 카드 선택 */
+  if(action==='pickGrade'){
+    e.stopImmediatePropagation(); e.preventDefault();
+    f.grade = value;
+    render(); return;
+  }
+
+  /* 학년 선택 → 회원가입 */
+  if(action==='gradeNext'){
+    e.stopImmediatePropagation(); e.preventDefault();
+    if(!String(f.grade||'').trim()) return;
     state.authView = 'signup';
     f.phone=''; f.code=''; f.codeSent=false; f.phoneVerified=false; f.codeError='';
     render(); return;
@@ -263,7 +314,7 @@ document.addEventListener('click', function(e){
   if(action==='authGo'&&value==='loginForm'){f.id='';f.pw='';f.authError='';f.resetOk=false;f.foundId='';}
   if(action==='authGo'&&value==='findpw'){f.id='';f.email='';f.newPw='';f.authError='';f.resetOk=false;}
   if(action==='authGo'&&value==='findid'){f.email='';f.findPhone='';f.authError='';f.foundId='';f.findMode='phone';}
-  if(action==='authGo'&&value==='signupSchool'){f.school='';f.atptCode=null;f.schulCode=null;f.schoolSearched=false;f.authError='';}
+  if(action==='authGo'&&value==='signupSchool'){f.school='';f.atptCode=null;f.schulCode=null;f.schoolSearched=false;f.grade='';f.authError='';}
   if(action==='authLogin'){f.school=f.school||me.school||'온담고등학교';f.grade=f.grade||me.grade||1;f.classNo=f.classNo||me.classNo||1;}
 
   if(action==='resetPw'){
@@ -304,6 +355,9 @@ setInterval(function(){
 
   var schoolNextBtn = document.getElementById('schoolNextBtn');
   if(schoolNextBtn) schoolNextBtn.disabled = !(f.atptCode && f.schulCode);
+
+  var gradeNextBtn = document.getElementById('gradeNextBtn');
+  if(gradeNextBtn) gradeNextBtn.disabled = !String(f.grade||'').trim();
 
   var loginBtn = document.getElementById('loginBtn');
   if(loginBtn) loginBtn.disabled = !(String(f.id||'').trim() && String(f.pw||'').trim());
