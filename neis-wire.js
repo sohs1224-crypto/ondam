@@ -3,6 +3,11 @@
   var acCache = {};
   var refocusSchool = false;
 
+  /* 학교 선택이 이뤄지는 화면인지 (회원가입 1단계 또는 2단계) */
+  function isSignupView(){
+    return state.authView === 'signup' || state.authView === 'signupSchool';
+  }
+
   authSchoolAC = function(q){
     q = String(q||'').trim();
     if(!q || !acCache[q]) return '';
@@ -64,7 +69,7 @@
 
     if(action === 'pickNeisSchool'){
       var parts = String(value).split('|');
-      if(state.authView === 'signup'){
+      if(isSignupView()){
         state.form.school = parts[0]; state.form.atptCode = parts[1];
         state.form.schulCode = parts[2]; state.form.schoolKind = parts[3] || '';
         state.form.classKey = null; state.form.classOptions = null;
