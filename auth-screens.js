@@ -186,7 +186,6 @@ function signupSocialScreen(){
     '<div style="flex:1.1"></div>'+
 
     '<div style="padding-bottom:calc(32px + env(safe-area-inset-bottom, 0px))">'+
-      btn('apple',  'Apple로 로그인',   '#000',     '#fff',     'none',            appleIcon)+
       btn('kakao',  '카카오톡으로 로그인', '#FEE500',  '#191600',  'none',            kakaoIcon)+
       btn('google', 'Google로 로그인',  '#fff',     '#1a1a1a',  '1px solid #dadce0', googleIcon)+
       errBox(f.authError)+
