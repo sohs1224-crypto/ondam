@@ -126,3 +126,11 @@ body{ background:#f0f0f0; }
   padding-bottom:env(safe-area-inset-bottom, 0px);
   z-index:52;
 }
+
+
+/* ===== 히어로(온도·미니게임) 텍스트를 장식 원 위로 =====
+   .temp-hero::after 로 그려지는 오른쪽 위 동그란 원이 문구를 덮지 않도록 레이어를 올립니다.
+   더불어 미니게임 제목 색을 '오늘의 급식'(.meal-hero-title, #575b4c)과 통일합니다.
+   (미니게임 제목은 인라인 색이 있어 우선순위(!important)로 맞춥니다.) */
+.temp-hero__meta{ position:relative; z-index:1; }
+.temp-hero__label + div{ color:#575b4c !important; position:relative; z-index:1; }
