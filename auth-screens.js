@@ -7,6 +7,19 @@ function errBox(msg){
   return '<div style="background:#fef2f2;border:1px solid #fca5a5;border-radius:10px;padding:12px 16px;margin-top:14px;text-align:center;font-size:14px;color:#dc2626">'+escapeHtml(msg)+'</div>';
 }
 
+/* ===== 회원가입 진행바 (4단계: 학교→학년→닉네임→소셜) ===== */
+var STEP_PROGRESS = {signupSchool:25, signupGrade:50, signupNick:75, signupSocial:100};
+
+function progressBar(step){
+  var target = STEP_PROGRESS[step] || 0;
+  var prev = (typeof window._ondamProgress==='number') ? window._ondamProgress : 0;
+  window._ondamProgress = target;
+  return '<div style="position:fixed;top:0;left:0;right:0;height:4px;background:#eef1e8;z-index:200">'+
+    '<div id="ondamProgressFill" data-target="'+target+'" '+
+      'style="height:100%;width:'+prev+'%;background:#8fae7e;transition:width 0.5s ease;border-radius:0 2px 2px 0"></div>'+
+  '</div>';
+}
+
 function phoneValid(p){
   var d = String(p||'').replace(/[^0-9]/g,'');
   return d.length >= 10 && d.length <= 11;
@@ -58,7 +71,8 @@ function signupSchoolScreen(){
   var lockAttr = picked ? ' readonly' : '';
   var iconBtn = '<button type="button" class="in-field-btn" data-action="searchSchool" aria-label="학교 검색">'+icon('search',18)+'</button>';
 
-  return '<div style="min-height:100vh;padding:0 0 96px 0;background:#fff">'+
+  return progressBar('signupSchool')+
+    '<div style="min-height:100vh;padding:0 0 96px 0;background:#fff">'+
     '<div class="auth" style="padding-bottom:0">'+
       '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">'+
         '<button class="iconbtn" data-action="authGo" data-value="login" aria-label="뒤로">'+icon('back',22)+'</button>'+
@@ -101,7 +115,8 @@ function signupGradeScreen(){
       g+'학년</button>';
   };
 
-  return '<div style="min-height:100vh;padding:0 0 96px 0;background:#fff">'+
+  return progressBar('signupGrade')+
+    '<div style="min-height:100vh;padding:0 0 96px 0;background:#fff">'+
     '<div class="auth" style="padding-bottom:0">'+
       '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">'+
         '<button class="iconbtn" data-action="authGo" data-value="signupSchool" aria-label="뒤로">'+icon('back',22)+'</button>'+
@@ -128,7 +143,8 @@ function signupNickScreen(){
   var nick = f.nickname || '';
   var tooLong = nick.length > 12;
 
-  return '<div style="min-height:100vh;padding:0 0 96px 0;background:#fff">'+
+  return progressBar('signupNick')+
+    '<div style="min-height:100vh;padding:0 0 96px 0;background:#fff">'+
     '<div class="auth" style="padding-bottom:0">'+
       '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">'+
         '<button class="iconbtn" data-action="authGo" data-value="signupGrade" aria-label="뒤로">'+icon('back',22)+'</button>'+
@@ -170,7 +186,8 @@ function signupSocialScreen(){
   var kakaoIcon = '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3C6.48 3 2 6.48 2 10.78c0 2.77 1.84 5.2 4.6 6.58l-1.17 4.3c-.1.37.31.66.63.45l5.15-3.4c.26.02.52.03.79.03 5.52 0 10-3.48 10-7.96S17.52 3 12 3z"/></svg>';
   var googleIcon = '<svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M21.6 12.23c0-.71-.06-1.4-.18-2.05H12v3.87h5.38a4.6 4.6 0 0 1-2 3.02v2.5h3.24c1.89-1.74 2.98-4.3 2.98-7.34z"/><path fill="#34A853" d="M12 22c2.7 0 4.96-.9 6.62-2.43l-3.24-2.5c-.9.6-2.04.96-3.38.96-2.6 0-4.8-1.76-5.59-4.12H3.06v2.59A10 10 0 0 0 12 22z"/><path fill="#FBBC05" d="M6.41 13.91a6.01 6.01 0 0 1 0-3.82V7.5H3.06a10 10 0 0 0 0 9l3.35-2.59z"/><path fill="#EA4335" d="M12 5.98c1.47 0 2.79.5 3.83 1.5l2.87-2.87C16.95 2.99 14.7 2 12 2A10 10 0 0 0 3.06 7.5l3.35 2.59C7.2 7.73 9.4 5.98 12 5.98z"/></svg>';
 
-  return '<div style="display:flex;flex-direction:column;min-height:100vh;padding:0 24px;background:#fff">'+
+  return progressBar('signupSocial')+
+    '<div style="display:flex;flex-direction:column;min-height:100vh;padding:0 24px;background:#fff">'+
     '<div style="padding-top:8px">'+
       '<button class="iconbtn" data-action="authGo" data-value="signupNick" aria-label="뒤로">'+icon('back',22)+'</button>'+
     '</div>'+
@@ -402,6 +419,15 @@ setInterval(function(){
 
   var resetPwBtn = document.getElementById('resetPwBtn');
   if(resetPwBtn) resetPwBtn.disabled = !(String(f.id||'').trim() && String(f.email||'').trim() && String(f.newPw||'').trim() && pwValid(f.newPw||''));
+
+  /* 진행바: 새로 그려진 직후엔 prev% 상태 — target% 로 옮겨 CSS transition 이 재생됨 */
+  var fill = document.getElementById('ondamProgressFill');
+  if(fill){
+    var tgt = fill.getAttribute('data-target');
+    if(fill.style.width !== tgt+'%') fill.style.width = tgt+'%';
+  }
+  /* 회원가입 흐름을 벗어나면 다음 진입 때 0에서 다시 시작하도록 리셋 */
+  if(!STEP_PROGRESS[state.authView]) window._ondamProgress = 0;
 }, 200);
 
 /* 모바일 키보드 위로 다음 버튼 올리기 */
