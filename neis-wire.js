@@ -67,6 +67,28 @@
       return;
     }
 
+    if(action === 'searchSchoolPlaza'){
+      var inp = document.getElementById('af-school-plaza');
+      var q2 = inp ? String(inp.value||'').trim() : '';
+      var box2 = document.getElementById('plazaSchoolAC');
+      if(!box2) return;
+      if(q2.length < 2){
+        box2.innerHTML = '<div class="ac-item ac-empty">2글자 이상 입력해 주세요</div>';
+        return;
+      }
+      box2.innerHTML = '<div class="ac-item ac-empty">찾는 중…</div>';
+      neisSearchSchools(q2).then(function(rows){
+        var b = document.getElementById('plazaSchoolAC');
+        if(!b) return;
+        if(!rows.length){ b.innerHTML = '<div class="ac-item ac-empty">검색 결과가 없어요</div>'; return; }
+        b.innerHTML = rows.slice(0,20).map(function(r){
+          var label = r.name + (r.area ? ' · ' + r.area : '');
+          return '<button type="button" class="ac-item" data-action="pickSchool" data-value="'+escapeAttr(r.name)+'">'+escapeHtml(label)+'</button>';
+        }).join('');
+      });
+      return;
+    }
+
     if(action === 'pickNeisSchool'){
       var parts = String(value).split('|');
       if(isSignupView()){
@@ -152,5 +174,24 @@
       });
     };
   }
+
+
+  /* 고민 작성 화면: 제목·본문(≥20자)·카테고리 모두 채워야 [고민 등록] 버튼 활성화 */
+  setInterval(function(){
+    if(typeof state==='undefined' || state.sub !== 'write') return;
+    var btn = document.getElementById('submitWorryBtn');
+    if(!btn) return;
+    var ti = document.getElementById('worryTitleInput');
+    var ta = document.getElementById('worryInput');
+    var title = ti ? String(ti.value||'').trim() : '';
+    var body  = ta ? String(ta.value||'').trim() : '';
+    var bodyRaw = ta ? String(ta.value||'') : '';
+    var ok = title.length>0 && body.length>=20 && !!state.draftCategory;
+    btn.disabled = !ok;
+    var cc = document.getElementById('worryCharCount');
+    if(cc) cc.textContent = bodyRaw.length;
+    var hint = document.getElementById('worryLenHint');
+    if(hint) hint.style.color = bodyRaw.length>=20 ? 'var(--ink-faint)' : '#d9534f';
+  }, 200);
 
 })();
