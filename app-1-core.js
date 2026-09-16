@@ -447,9 +447,10 @@ function writeScreen(){
   var canSubmit = curTitle.length>0 && curBody.length>=20 && !!dc;
   var bodyLen = (state.draftWorry||'').length;
   return '<div class="screen"><section class="section">'+
-    '<div class="card" style="background:var(--surface-alt)"><div class="muted" style="font-size:13px">닉네임은 익명으로 표시돼요. 편하게 적어보세요 🌱</div></div>'+
-    '<input class="field__input" id="worryTitleInput" value="'+escapeAttr(state.draftTitle||'')+'" placeholder="제목을 입력하세요." style="margin-top:12px;font-size:18px;font-weight:600" autocomplete="off">'+
-    '<textarea id="worryInput" class="textarea" placeholder="어떤 고민이든 편하게 적어보세요. 최소 20자 이상 작성해 주세요. 따뜻한 답변이 기다리고 있어요.">'+escapeHtml(state.draftWorry||'')+'</textarea>'+
+    '<div class="field__label">제목</div>'+
+    '<input class="field__input" id="worryTitleInput" value="'+escapeAttr(state.draftTitle||'')+'" placeholder="제목을 입력하세요." autocomplete="off">'+
+    '<div class="field__label" style="margin-top:14px">고민 작성</div>'+
+    '<textarea id="worryInput" class="textarea" style="margin-top:0" placeholder="어떤 고민이든 편하게 적어보세요. 최소 20자 이상 작성해 주세요. 따뜻한 답변이 기다리고 있어요.">'+escapeHtml(state.draftWorry||'')+'</textarea>'+
     '<div id="worryLenHint" style="margin-top:4px;font-size:12px;color:'+(bodyLen>=20?'var(--ink-faint)':'#d9534f')+';text-align:right">최소 20자 (현재 <span id="worryCharCount">'+bodyLen+'</span>자)</div>'+
     '<div class="field__label" style="margin-top:14px">카테고리 · 1개 필수 선택</div>'+catChips+
     (state.worryCatErr?'<div class="field-err" style="display:block">'+escapeHtml(state.worryCatErr)+'</div>':'')+
@@ -577,7 +578,7 @@ function worryDetailScreen(){
       '<div class="worry__meta">'+catHtml+'</div>'+
       titleHtml+
       '<div class="worry__meta" style="margin-top:4px">'+nickSpan(w.nick, !!w.mine)+
-        '<span>·</span><span>'+escapeHtml(w.school)+'</span><span>·</span><span>'+escapeHtml(w.ago)+'</span><span>·</span><span>조회 '+fmt(w.views||0)+'</span></div>'+
+        '<span>·</span><span>'+escapeHtml(w.school)+'</span><span>·</span><span>조회 '+fmt(w.views||0)+'</span></div>'+
       '<p class="worry__body" style="margin-top:8px;font-size:14px;line-height:1.6">'+escapeHtml(w.body)+'</p>'+
       '<div style="display:flex;gap:0;margin-top:14px;align-items:center">'+
         '<button class="pf-btn" data-action="cardWarm" data-value="'+w.id+'" aria-label="온기">'+heartSVG(w.liked)+'<span>'+w.warmth+'</span></button>'+
