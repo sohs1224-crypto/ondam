@@ -80,7 +80,7 @@ var warmthKings = [
   {name:'포근한밤',val:2210},{name:'작은용기',val:2080},{name:'햇살한줌',val:1960},
   {name:'다정한바람',val:1840},{name:'느린걸음',val:1720},{name:'별빛수집가',val:1610},
   {name:'하늘색우산',val:1500},{name:'초록우체통',val:1390},{name:'토닥토닥',val:1280},
-  {name:'온기전도사',val:1170},{name:'몽글몽글',val:1060},{name:'새벽감성',val:950},
+  {name:'온기전도사',val:1170},{name:'목글목글',val:1060},{name:'새벽감성',val:950},
   {name:'차분한오후',val:860},{name:'고요한물결',val:780}
 ];
 var tempSchools = [
@@ -91,7 +91,7 @@ var tempSchools = [
 ];
 
 var ONE_LINERS = [
-  '오늘도 서로에게 한 뼘의 온기를 나눠요 🌱','작은 응원 한마디가 누군가의 하루를 바꿔요',
+  '오늘도 서로에게 한 뼼의 온기를 나눠요 🌱','작은 응원 한마디가 누군가의 하루를 바꿔요',
   '완벽하지 않아도 괜찮아요, 오늘의 나로 충분해요','힘든 마음은 혼자 두지 말고 살짝 꺼내 놓아요',
   '누군가의 고민에 귀 기울이는 당신은 이미 따뜻한 사람이에요','오늘 하루도 무사히 지나갈 거예요',
   '작은 친절이 큰 위로가 됩니다','지금 이 순간의 당신을 응원해요',
@@ -103,38 +103,38 @@ var ONE_LINERS = [
   '당신은 생각보다 훨씬 단단한 사람이에요','실수해도 괜찮아요, 그렇게 배우는 거예요',
   '지친 마음엔 깊은 숨 한 번이 약이 돼요','곁에 있어 주는 것만으로도 큰 힘이 돼요',
   '오늘도 나를 아껴주는 하루 되기','작은 용기가 큰 변화를 만들어요',
-  '누군가의 하루에 따뜻함 한 스푼 더하기','비교하지 말고, 어제의 나와만 겨뤄요',
+  '누군가의 하루에 따뜻함 한 스푼 더하기','비교하지 말고, 어제의 나와만 겨될요',
   '마음의 온도를 조금만 올려볼까요?','당신의 다정함이 이 공간을 데워요',
   '오늘 하루, 스스로에게 수고했다고 말해줘요','넘어져도 다시 일어나면 그게 성장이에요',
   '좋은 말은 아끼지 말고 나눠요','조금 느려도 방향만 맞으면 돼요',
-  '오늘 웃을 일 하나쯤은 꼭 생겨요','마음이 시릴 땐 서로의 온기로 데워요',
+  '오늘 웃을 일 하나쯤은 꼭 생겨요','마음이 시릴 때엔 서로의 온기로 데워요',
   '당신의 존재만으로 충분히 의미 있어요','힘내라는 말 대신, 곁에 있어 줄게요',
   '오늘의 걱정은 오늘만, 내일 걱정은 내일에게','작은 친절이 돌고 돌아 다시 나에게 와요',
   '스스로에게 조금 더 너그러워지기','지금 잘 버티고 있는 당신, 정말 대단해요',
-  '누군가의 말에 고개 끄덕여 주는 것도 위로예요','오늘도 좋은 사람들과 온기를 나눠요',
+  '누군가의 말에 고개 끓덕여 주는 것도 위로예요','오늘도 좋은 사람들과 온기를 나눠요',
   '마음이 흐린 날에도 해는 뜨고 있어요','완벽보다 꾸준함이 더 멀리 가요',
   '당신의 고민, 결코 사소하지 않아요','따뜻한 하루의 시작은 다정한 한마디부터',
-  '오늘 나에게 필요한 건 약간의 쉼일지도 몰라요','서로 기대면 조금 덜 힘들어요',
+  '오늘 나에게 필요한 건 약간의 쉰일지도 몰라요','서로 기대면 조금 덜 힘들어요',
   '잘 모르겠는 날엔, 그냥 오늘을 살아내면 돼요','당신이 나눈 온기가 어딘가에서 꽃피고 있어요',
   '오늘도 나를 응원하는 사람이 여기 있어요','조급함은 잠시 내려놓아도 괜찮아요',
-  '마음의 문을 살짝만 열어도 온기가 들어와요','누군가에게 오늘 하루가 어땠는지 물어봐요',
+  '마음의 문을 살짝만 열어도 온기가 들어와요','누군가에게 오늘 하루가 어똌는지 물어봐요',
   '작은 관심이 큰 위로가 됩니다','지금의 노력은 반드시 어딘가에 쌓이고 있어요',
   '스스로를 다그치기보다 토닥여 줘요','오늘 하루도 당신 편이에요',
   '따뜻함은 나눌수록 커져요','한 사람의 다정함이 교실을 바꿔요',
-  '걱정이 많은 밤, 당신은 혼자가 아니에요','오늘의 나에게 고생했다고 말해줄까요',
-  '마음을 표현하는 것도 용기예요','조금 서툴러도 진심은 전해져요',
+  '걱정이 많은 밤, 당신은 혼자가 아니에요','오늘의 나에게 고생했다고 말해줌까요',
+  '마음을 표현하는 것도 용기예요','조금 서투러도 진심은 전해져요',
   '당신의 하루에 작은 햇살이 들기를','힘든 이야기를 꺼낸 당신, 이미 절반은 이겨낸 거예요',
   '오늘 누군가의 이야기에 온기를 더해봐요','나를 돌보는 것도 중요한 일이에요',
   '서로의 온도를 높여주는 하루','지금 이 자리까지 온 것만으로 충분히 잘했어요',
-  '작은 배려가 오늘을 특별하게 만들어요','마음이 지칠 땐 잠깐 멈춰도 돼요',
+  '작은 배려가 오늘을 특별하게 만들어요','마음이 지칠 때엔 잠깐 멈춰도 돼요',
   '당신의 다정한 답글이 누군가에게 큰 힘이 돼요','오늘도 따뜻한 말로 하루를 채워봐요',
   '완벽하지 않은 하루도 소중해요','누군가를 응원하면 내 마음도 따뜻해져요',
   '지금 느끼는 감정, 모두 괜찮은 거예요','오늘 하루, 나에게 친절하기',
-  '조금씩이라도 앞으로 가고 있어요','서로의 이야기에 귀 기울이는 이곳이 참 따뜻해요',
+  '조금씨이라도 앞으로 가고 있어요','서로의 이야기에 귀 기울이는 이곳이 참 따뜻해요',
   '힘든 날엔 작은 위로 하나면 충분해요','당신은 누군가에게 큰 힘이 되고 있어요',
   '오늘도 온기를 나눠줘서 고마워요','마음의 짐은 함께 들면 가벼워져요',
   '잠시 쉬는 것도 앞으로 나아가는 방법이에요','오늘 하루의 끝엔 스스로를 안아줘요',
-  '작은 다정함이 세상을 바꿔요','지금 당신의 속도가 딱 맞아요',
+  '작은 다정함이 세상을 바꿔요','지금 당신의 속도가 딝 맞아요',
   '누군가의 하루를 밝히는 한마디, 오늘 남겨봐요','고민을 말하는 순간, 이미 용감한 거예요',
   '서로 응원하며 함께 자라나요','오늘도 나를 믿고 한 걸음 더',
   '따뜻한 마음은 반드시 전해져요','힘든 시간도 결국 지나가요',
@@ -283,7 +283,7 @@ function plazaScreen(){
       '<div class="segmented" style="flex:1;padding-bottom:0">'+segs+'</div>'+
       '<button class="iconbtn" data-action="open" data-value="search" aria-label="고민 검색" style="margin-right:10px;flex:none">'+icon('search',20)+'</button>'+
     '</div>'+
-    schoolBar+catBar+
+    catBar+schoolBar+
     '<div style="padding:8px 0 0">'+listHtml+'</div>'+
     '<button class="fab" data-action="open" data-value="write" aria-label="고민 작성">'+icon('plus',26,2.4)+'</button></div>';
 }
@@ -394,8 +394,8 @@ function tempTopScreen(){
     rankList(tempSchools, function(s){ return s.val+'°C'; })+'</div></section></div>';
 }
 /* ===== AI 욕설 필터 (mock) ===== */
-var BAD_WORDS = ['시발','씨발','ㅅㅂ','시바','병신','ㅂㅅ','개새끼','새끼','개소리','존나','ㅈㄴ','지랄','닥쳐','꺼져','미친','미쳤','죽어','죽을래','바보','멍청이','등신','한심','재수없','짜증나'];
-var SOFT_MAP = {'존나':'정말','ㅈㄴ':'정말','미친':'너무','미쳤':'너무했','짜증나':'속상해','재수없':'속상해'};
+var BAD_WORDS = ['시발','씨발','ㅅㅂ','시바','병신','ㅂㅅ','개새끼','새끼','개소리','존나','ㅈㄴ','지랄','닭쳐','꺼져','미친','미쳐쓰','죽어','죽을래','바보','멍청이','등신','한심','재수없','짜증나'];
+var SOFT_MAP = {'존나':'정말','ㅈㄴ':'정말','미친':'너무','미쳐쓰':'너무했','짜증나':'속상해','재수없':'속상해'};
 function containsBad(t){ t=String(t||''); return BAD_WORDS.some(function(w){ return t.indexOf(w)>=0; }); }
 function cleanText(t){
   var s=String(t||'');
@@ -442,13 +442,18 @@ function writeScreen(){
   var catChips = '<div class="subj-wrap" style="margin-top:12px">'+WORRY_CATS.map(function(c){
     return '<button class="subj-chip'+(dc===c?' is-on':'')+'" data-action="pickWorryCat" data-value="'+c+'">'+c+'</button>';
   }).join('')+'</div>';
+  var curTitle = String(state.draftTitle||'').trim();
+  var curBody  = String(state.draftWorry||'').trim();
+  var canSubmit = curTitle.length>0 && curBody.length>=20 && !!dc;
+  var bodyLen = (state.draftWorry||'').length;
   return '<div class="screen"><section class="section">'+
     '<div class="card" style="background:var(--surface-alt)"><div class="muted" style="font-size:13px">닉네임은 익명으로 표시돼요. 편하게 적어보세요 🌱</div></div>'+
-    '<input class="field__input" id="worryTitleInput" value="'+escapeAttr(state.draftTitle||'')+'" placeholder="제목을 입력하세요." style="margin-top:12px" autocomplete="off">'+
-    '<textarea id="worryInput" class="textarea" placeholder="어떤 고민이든 편하게 적어보세요. 따뜻한 답변이 기다리고 있어요.">'+escapeHtml(state.draftWorry||'')+'</textarea>'+
+    '<input class="field__input" id="worryTitleInput" value="'+escapeAttr(state.draftTitle||'')+'" placeholder="제목을 입력하세요." style="margin-top:12px;font-size:18px;font-weight:600" autocomplete="off">'+
+    '<textarea id="worryInput" class="textarea" placeholder="어떤 고민이든 편하게 적어보세요. 최소 20자 이상 작성해 주세요. 따뜻한 답변이 기다리고 있어요.">'+escapeHtml(state.draftWorry||'')+'</textarea>'+
+    '<div id="worryLenHint" style="margin-top:4px;font-size:12px;color:'+(bodyLen>=20?'var(--ink-faint)':'#d9534f')+';text-align:right">최소 20자 (현재 <span id="worryCharCount">'+bodyLen+'</span>자)</div>'+
     '<div class="field__label" style="margin-top:14px">카테고리 · 1개 필수 선택</div>'+catChips+
     (state.worryCatErr?'<div class="field-err" style="display:block">'+escapeHtml(state.worryCatErr)+'</div>':'')+
-    '<button class="btn btn--primary" data-action="submitWorry" style="margin-top:12px">고민 등록</button>'+
+    '<button class="btn btn--primary" id="submitWorryBtn" data-action="submitWorry" style="margin-top:12px"'+(canSubmit?'':' disabled')+'>고민 등록</button>'+
     modPanel('worry')+
     '</section></div>';
 }
@@ -477,7 +482,7 @@ var notifs = [
   {icon:'heart',accent:'var(--accent-my)',title:'누군가 내 고민에 공감했어요',time:'1시간 전'},
   {icon:'thermometer',accent:'var(--accent-game)',title:'우리 학교가 온도전 3위에 올랐어요',time:'3시간 전'},
   {icon:'trophy',accent:'var(--accent-my)',title:'이번 달 온기왕 7위를 기록 중이에요',time:'오늘'},
-  {icon:'bell',accent:'var(--accent-home)',title:'이번 주 가장 따뜻한 학교 발표가 곧 시작돼요',time:'어제'}
+  {icon:'bell',accent:'var(--accent-home)',title:'이번 주 가장 따뜻한 학교 발표가 곷 시작돼요',time:'어제'}
 ];
 function notifScreen(){
   var rows = notifs.map(function(n){
@@ -504,9 +509,13 @@ function schoolPickScreen(){
   var all = '<button class="list-row" data-action="pickSchool" data-value="전체 학교">'+
     '<span class="list-row__txt"><span class="list-row__title">전체 학교</span><span class="list-row__sub">모든 학교의 고민 보기</span></span>'+
     ((state.school==='전체 학교' || (!state.school && state.sort==='학교별'))?icon('check',18,2,'var(--warm-600)'):'')+'</button>';
+  var searchIcon = '<button type="button" class="in-field-btn" data-action="searchSchoolPlaza" aria-label="학교 검색">'+icon('search',18)+'</button>';
   return '<div class="screen"><section class="section"><div class="rows">'+mine+all+'</div>'+
-    '<div style="margin-top:12px"><input id="schoolSearchInput" class="field__input" placeholder="학교 이름을 검색하세요" autocomplete="off"></div>'+
-    '<div class="rows" id="schoolList" style="margin-top:12px">'+schoolRows('')+'</div>'+
+    '<div style="margin-top:14px;position:relative">'+
+      '<input id="af-school-plaza" class="field__input" placeholder="학교 이름을 검색하세요 (2글자 이상)" autocomplete="off" style="padding-right:44px" onkeydown="if(event.key===\'Enter\'){event.preventDefault();var b=document.querySelector(\'[data-action=searchSchoolPlaza]\');if(b)b.click();}">'+
+      searchIcon+
+    '</div>'+
+    '<div class="ac-list" id="plazaSchoolAC" style="margin-top:8px"></div>'+
     '</section></div>';
 }
 function thumbIcon(active){
