@@ -16,9 +16,9 @@ var MOODS = ['설렘','평온','지침','불안','슬픔'];
 var MOOD_PHRASES = {
   '설렘':'설레는 하루네요! 그 마음 그대로 오늘을 즐겨봐요 ✨',
   '평온':'평온한 하루, 이 고요함을 오래 간직해요 🍃',
-  '지침':'많이 지쳤군요. 잠시 쉬어가도 괜찮아요 🌿',
-  '불안':'불안한 마음, 당신 잘못이 아니에요. 천천히 숨을 골라봐요 🤍',
-  '슬픔':'슬픈 날엔 울어도 괜찮아요. 곁에 있어줄게요 🫂'
+  '지침':'많이 지첼군요. 잠시 쉬어가도 괜찮아요 🌿',
+  '불안':'불안한 마음, 당신 잘못이 아니에요. 천천히 숨을 고라봐요 🤍',
+  '슬픔':'슬픈 날엔 울어도 괜찮아요. 곁에 있어줌게요 🫂'
 };
 /* ===== 공감 엄지 아이콘 (좋아요/싫어요) ===== */
 function thumbSVG(active, down){
@@ -366,7 +366,8 @@ document.addEventListener('click', function(e){
     var title = String(rawTitle).trim();
     state.draftWorry = raw; state.draftTitle = rawTitle;
     if(!state.draftCategory){ state.worryCatErr='카테고리를 선택해 주세요.'; render(); return; }
-    if(!v){ return; }
+    if(!title){ return; }
+    if(v.length < 20){ return; }
     if(containsBad(title+' '+v)){ state.modWorry = softenSuggestions(v); render(); return; }
     if(!db){
       worries.unshift({ id:Date.now(), nick:'익명의 나', school:me.school, ago:'방금 전', createdAt:Date.now(), warmth:0, views:0, liked:false, disliked:false, mine:true, category:state.draftCategory, bestAnswerId:null, reportCount:0, title:title, body:v, answers:[] });
@@ -482,7 +483,7 @@ document.addEventListener('click', function(e){
           db.from('hidden_worries').insert({ user_id: state.userId, worry_id: pd.value })
             .then(function(){ loadWorries(); });
         }
-        notifs.unshift({ title:'게시물을 숨겼어요. 고민광장 목록에서 보이지 않아요.', time:'방금 전' });
+        notifs.unshift({ title:'게시물을 숨겨어요. 고민광장 목록에서 보이지 않아요.', time:'방금 전' });
       }
     }
     render();
