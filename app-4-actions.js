@@ -163,15 +163,23 @@ document.addEventListener('click', function(e){
     if(inv){ if(!state.form.touched) state.form.touched={}; AUTH_FIELDS.forEach(function(k){ state.form.touched[k]=true; }); render(); return; }
     if(!db){ applyAuthProfile(); setLoggedIn(); state.stage='app'; state.tab='home'; checkPerfDdayNotifs(); loadWorries(); render(); return; }
     state.form.authError = null; state.form.busy = true; render();
-    db.auth.signInWithPassword({
-      email: idToEmail(state.form.id),
-      password: String(state.form.pw||'')
-    }).then(function(r){
-      state.form.busy = false;
-      if(r.error){ state.form.authError = authMsg(r.error); render(); return; }
-      setLoggedIn();
-      loadMyProfile().then(function(){
-        state.form.pw=''; state.stage='app'; state.tab='home'; checkPerfDdayNotifs(); loadWorries(); render();
+    var nick = String(state.form.id||'').trim();
+    db.rpc('find_login_id_by_nickname', { nick_in: nick }).then(function(rr){
+      if(rr.error || !rr.data){
+        state.form.busy = false;
+        state.form.authError = '닉네임 또는 비밀번호가 올바르지 않아요.';
+        render(); return;
+      }
+      db.auth.signInWithPassword({
+        email: idToEmail(rr.data),
+        password: String(state.form.pw||'')
+      }).then(function(r){
+        state.form.busy = false;
+        if(r.error){ state.form.authError = '닉네임 또는 비밀번호가 올바르지 않아요.'; render(); return; }
+        setLoggedIn();
+        loadMyProfile().then(function(){
+          state.form.pw=''; state.stage='app'; state.tab='home'; checkPerfDdayNotifs(); loadWorries(); render();
+        });
       });
     });
   }
