@@ -218,8 +218,8 @@ function loginScreen(){
     '<div class="field"><div class="field__label">닉네임</div><input class="field__input" data-field="id" id="af-id" value="'+escapeAttr(f.id)+'" placeholder="닉네임을 입력하세요" autocomplete="off" maxlength="12"><div class="pw-hint">12자 이내로 입력해 주세요.</div></div>'+
     '<div class="field"><div class="field__label">비밀번호</div><input class="field__input" data-field="pw" id="af-pw" type="password" value="'+escapeAttr(f.pw)+'" placeholder="비밀번호를 입력하세요" autocomplete="off"></div>'+
     '<div style="margin-top:20px"><button class="btn btn--primary" id="loginBtn" data-action="authLogin" disabled>'+(f.busy?'잠시만요…':'로그인')+'</button></div>'+
-    (f.authError?'<div style="color:#d9534f;text-align:center;margin-top:8px;font-size:13px">아이디 또는 비밀번호가 올바르지 않아요.</div>':'')+
-    '<div class="auth__links"><span data-action="authGo" data-value="findid">아이디 찾기</span><span class="dot"></span><span data-action="authGo" data-value="findpw">비밀번호 찾기</span></div>'+
+    (f.authError?'<div style="color:#d9534f;text-align:center;margin-top:8px;font-size:13px">닉네임 또는 비밀번호가 올바르지 않아요.</div>':'')+
+    '<div class="auth__links"><span data-action="authGo" data-value="findid">닉네임 찾기</span><span class="dot"></span><span data-action="authGo" data-value="findpw">비밀번호 찾기</span></div>'+
   '</div>';
 }
 
@@ -227,8 +227,8 @@ findIdScreen = function(){
   var f = state.form;
   if(f.foundId){
     return '<div class="auth">'+
-      '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><button class="iconbtn" data-action="authGo" data-value="loginForm" aria-label="뒤로">'+icon('back',22)+'</button><div style="font-size:20px;font-weight:800">아이디 찾기</div></div>'+
-      '<div style="text-align:center;margin:40px 0"><p style="font-size:14px;color:#888;margin:0 0 12px">등록된 아이디입니다.</p><div style="font-size:22px;font-weight:800;color:#1a1a1a;background:#f4f4f4;padding:16px;border-radius:12px">'+escapeHtml(f.foundId)+'</div></div>'+
+      '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><button class="iconbtn" data-action="authGo" data-value="loginForm" aria-label="뒤로">'+icon('back',22)+'</button><div style="font-size:20px;font-weight:800">닉네임 찾기</div></div>'+
+      '<div style="text-align:center;margin:40px 0"><p style="font-size:14px;color:#888;margin:0 0 12px">등록된 닉네임입니다.</p><div style="font-size:22px;font-weight:800;color:#1a1a1a;background:#f4f4f4;padding:16px;border-radius:12px">'+escapeHtml(f.foundId)+'</div></div>'+
       '<div style="margin-top:20px"><button class="btn btn--primary" data-action="authGo" data-value="loginForm">로그인하러 가기</button></div>'+
     '</div>';
   }
@@ -240,8 +240,8 @@ findIdScreen = function(){
       ';color:'+(on?'#fff':'#888')+';font-family:inherit';
   };
   return '<div class="auth">'+
-    '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><button class="iconbtn" data-action="authGo" data-value="loginForm" aria-label="뒤로">'+icon('back',22)+'</button><div style="font-size:20px;font-weight:800">아이디 찾기</div></div>'+
-    '<p style="font-size:13px;color:#888;margin:0 0 16px">가입 시 등록한 정보로 아이디를 찾을 수 있어요.</p>'+
+    '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><button class="iconbtn" data-action="authGo" data-value="loginForm" aria-label="뒤로">'+icon('back',22)+'</button><div style="font-size:20px;font-weight:800">닉네임 찾기</div></div>'+
+    '<p style="font-size:13px;color:#888;margin:0 0 16px">가입 시 등록한 정보로 닉네임을 찾을 수 있어요.</p>'+
     '<div style="display:flex;border-radius:10px;overflow:hidden;margin-bottom:18px">'+
       '<button data-action="findMode" data-value="phone" style="'+tabStyle(isPhone)+'">전화번호</button>'+
       '<button data-action="findMode" data-value="email" style="'+tabStyle(!isPhone)+'">본인확인 이메일</button>'+
@@ -267,8 +267,8 @@ findPwScreen = function(){
   var npBad = np && !pwValid(np);
   return '<div class="auth">'+
     '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><button class="iconbtn" data-action="authGo" data-value="loginForm" aria-label="뒤로">'+icon('back',22)+'</button><div style="font-size:20px;font-weight:800">비밀번호 찾기</div></div>'+
-    '<p style="font-size:13px;color:#888;margin:0 0 16px">가입 시 등록한 아이디와 이메일을 입력하면<br>새 비밀번호를 설정할 수 있어요.</p>'+
-    '<div class="field"><div class="field__label">아이디</div><input class="field__input" data-field="id" id="af-id" value="'+escapeAttr(f.id)+'" placeholder="아이디를 입력하세요" autocomplete="off"></div>'+
+    '<p style="font-size:13px;color:#888;margin:0 0 16px">가입 시 등록한 닉네임과 이메일을 입력하면<br>새 비밀번호를 설정할 수 있어요.</p>'+
+    '<div class="field"><div class="field__label">닉네임</div><input class="field__input" data-field="id" id="af-id" value="'+escapeAttr(f.id)+'" placeholder="닉네임을 입력하세요" autocomplete="off" maxlength="12"><div class="pw-hint">12자 이내로 입력해 주세요.</div></div>'+
     '<div class="field"><div class="field__label">가입 시 등록한 이메일</div><input class="field__input" data-field="email" id="af-email" value="'+escapeAttr(f.email||'')+'" placeholder="이메일을 입력하세요" autocomplete="off"></div>'+
     '<div class="field"><div class="field__label">새 비밀번호</div><input class="field__input" data-field="newPw" id="af-newPw" type="password" value="'+escapeAttr(np)+'" placeholder="새 비밀번호를 입력하세요" autocomplete="new-password"><div class="pw-hint" style="color:'+(npBad?'#d9534f':'var(--ink-faint)')+'">8자 이상, 영문과 숫자를 포함하여 입력해주세요.</div></div>'+
     '<div style="margin-top:20px"><button class="btn btn--primary" id="resetPwBtn" data-action="resetPw" disabled>'+(f.busy?'잠시만요…':'비밀번호 변경')+'</button></div>'+
@@ -365,8 +365,16 @@ document.addEventListener('click', function(e){
   if(action==='resetPw'){
     e.stopImmediatePropagation();
     f.busy=true;f.authError='';render();
-    db.rpc('reset_password',{login_id_in:String(f.id||'').trim(),email_in:String(f.email||'').trim(),new_pw:String(f.newPw||'').trim()})
-      .then(function(r){f.busy=false;if(r.error){f.authError='처리 중 오류가 발생했습니다.';render();return;}if(r.data===true){f.resetOk=true;f.authError='';}else{f.authError='아이디 또는 이메일이 일치하지 않습니다.';}render();});
+    var nick=String(f.id||'').trim();
+    db.rpc('find_login_id_by_nickname',{nick_in:nick}).then(function(rr){
+      if(rr.error||!rr.data){
+        f.busy=false;
+        f.authError='닉네임 또는 이메일이 일치하지 않습니다.';
+        render(); return;
+      }
+      db.rpc('reset_password',{login_id_in:rr.data,email_in:String(f.email||'').trim(),new_pw:String(f.newPw||'').trim()})
+        .then(function(r){f.busy=false;if(r.error){f.authError='처리 중 오류가 발생했습니다.';render();return;}if(r.data===true){f.resetOk=true;f.authError='';}else{f.authError='닉네임 또는 이메일이 일치하지 않습니다.';}render();});
+    });
   }
 
   if(action==='findId'){
@@ -374,10 +382,10 @@ document.addEventListener('click', function(e){
     var contact = (f.findMode==='email') ? String(f.email||'').trim() : String(f.findPhone||'').trim();
     if(!contact){ render(); return; }
     f.busy=true;f.authError='';render();
-    db.rpc('find_login_id_by',{contact:contact})
+    db.rpc('find_nickname_by',{contact:contact})
       .then(function(r){
         f.busy=false;
-        if(r.error||!r.data){ f.authError='등록된 아이디를 찾지 못했어요.'; render(); return; }
+        if(r.error||!r.data){ f.authError='등록된 닉네임을 찾지 못했어요.'; render(); return; }
         f.foundId=r.data; f.authError=''; render();
       });
   }
